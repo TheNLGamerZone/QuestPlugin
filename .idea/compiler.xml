@@ -12,6 +12,7 @@
     <bytecodeTargetLevel>
       <module name="MC" target="1.5" />
       <module name="QuestPlugin" target="8" />
+      <module name="QuestPlugin (1)" target="8" />
     </bytecodeTargetLevel>
   </component>
 </project>
