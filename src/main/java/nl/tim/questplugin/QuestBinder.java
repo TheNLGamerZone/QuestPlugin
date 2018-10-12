@@ -3,18 +3,23 @@ package nl.tim.questplugin;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.name.Names;
+
+import java.io.File;
 
 public class QuestBinder extends AbstractModule
 {
-    private final QuestPlugin questPlugin;
+    private QuestPlugin questPlugin;
+    private File configFolder;
 
     /**
      * Constructor for binder
      * @param questPlugin
      */
-    public QuestBinder(QuestPlugin questPlugin)
+    public QuestBinder(QuestPlugin questPlugin, File configFolder)
     {
         this.questPlugin = questPlugin;
+        this.configFolder = configFolder;
     }
 
     public Injector createInjector()
@@ -25,5 +30,7 @@ public class QuestBinder extends AbstractModule
     @Override
     protected void configure() {
         this.bind(QuestPlugin.class).toInstance(this.questPlugin);
+
+        this.bind(File.class).annotatedWith(Names.named("config")).toInstance(configFolder);
     }
 }
