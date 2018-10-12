@@ -1,5 +1,6 @@
 package nl.tim.questplugin.utils;
 
+import nl.tim.questplugin.storage.ConfigHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -31,15 +32,7 @@ public final class LocationSerializer
         File dataFile = new File(configFolder + File.separator + path);
         FileConfiguration fileConfiguration = new YamlConfiguration();
 
-        if (!dataFile.exists())
-        {
-            dataFile.getParentFile().mkdirs();
-            try {
-                dataFile.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        ConfigHandler.checkFileExists(dataFile);
 
         try
         {

@@ -3,7 +3,6 @@ package nl.tim.questplugin.area;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.bukkit.Location;
-import org.bukkit.configuration.file.FileConfiguration;
 
 import java.awt.geom.Line2D;
 import java.util.LinkedHashSet;
@@ -76,6 +75,7 @@ public class Polygon extends Region
 
         this.uuid = uuid;
         this.locationSet = locationSet;
+        this.regionFileIdentifier = ID_POLYGON;
 
         if (locationSet.size() > 0)
         {
@@ -153,12 +153,6 @@ public class Polygon extends Region
 
         // If the location is in the polygon the number of intersections will be odd
         return intersections % 2 == 1;
-    }
-
-    @Override
-    public void save(String internalPath)
-    {
-
     }
 
     @Override

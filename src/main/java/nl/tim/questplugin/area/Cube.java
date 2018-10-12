@@ -2,7 +2,6 @@ package nl.tim.questplugin.area;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.bukkit.Location;
-import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -25,6 +24,7 @@ public class Cube extends Region
         this.location1 = location1;
         this.location2 = location2;
         this.world = location1.getWorld();
+        this.regionFileIdentifier = ID_CUBE;
     }
 
     @Override
@@ -49,17 +49,6 @@ public class Cube extends Region
     private boolean liesBetween(double a, double b, double n)
     {
         return (n - a) * (n - b) <= 0;
-    }
-
-    public static Cube read(FileConfiguration configFile, UUID uuid)
-    {
-        return null;
-    }
-
-    @Override
-    public void save(String internalPath)
-    {
-
     }
 
     @Override

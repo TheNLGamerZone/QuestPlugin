@@ -2,7 +2,6 @@ package nl.tim.questplugin.area;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.bukkit.Location;
-import org.bukkit.configuration.file.FileConfiguration;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -25,6 +24,7 @@ public class Sphere extends Region
         this.center = center;
         this.radius = radius;
         this.world = center.getWorld();
+        this.regionFileIdentifier = ID_SPHERE;
     }
 
     @Override
@@ -45,12 +45,6 @@ public class Sphere extends Region
         double distanceToCenter = dx * dx + dy * dy + dz * dz;
 
         return distanceToCenter <= this.radius * this.radius;
-    }
-
-    @Override
-    public void save(String internalPath)
-    {
-
     }
 
     @Override
@@ -79,10 +73,5 @@ public class Sphere extends Region
     public int hashCode()
     {
         return Objects.hash(this.uuid, this.center, this.radius);
-    }
-
-    public static Sphere read(FileConfiguration dataFile, String path)
-    {
-        return null;
     }
 }

@@ -7,6 +7,13 @@ import java.util.UUID;
 
 public abstract class Region
 {
+    // Constants
+    public static final String ID_CUBE = "911527db";
+    public static final String ID_SPHERE = "2ad05917";
+    public static final String ID_POLYGON = "0d403ffa";
+
+    // Regular fields
+    String regionFileIdentifier;
     UUID uuid;
     World world;
     boolean ignoreHeight;
@@ -22,8 +29,6 @@ public abstract class Region
     }
 
     public abstract boolean inRegion(Location location, boolean ignoreHeight);
-
-    public abstract void save(String internalPath);
 
     public abstract boolean equals(Object object);
 

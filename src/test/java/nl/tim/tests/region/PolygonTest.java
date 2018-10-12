@@ -70,6 +70,8 @@ public class PolygonTest
         assertTrue("These object are equal", regularPolygon.equals(regularPolygon));
         assertTrue("These objects are equal", regularPolygon.equals(testPolygon));
         assertFalse("These objects are not equal", regularPolygon.equals(new Polygon(UUID.randomUUID(), new LinkedHashSet<>())));
+
+        System.out.println("Hashcode: " + regularPolygon.hashCode());
     }
 
     @Test
