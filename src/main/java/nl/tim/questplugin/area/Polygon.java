@@ -138,10 +138,10 @@ public class Polygon extends Region
         {
             if (previousLocation != null)
             {
-                // Check intersect
+                // Create line between current points
                 Line line = new Line(previousLocation, itLocation);
 
-                // If the lines intersect add one to 'intersections'
+                // If the lines intersect increment 'intersections'
                 if (line.intersect(rayLine))
                 {
                     intersections++;

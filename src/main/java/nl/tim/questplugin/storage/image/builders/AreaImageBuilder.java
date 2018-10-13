@@ -1,7 +1,9 @@
 package nl.tim.questplugin.storage.image.builders;
 
+import nl.tim.questplugin.QuestPlugin;
 import nl.tim.questplugin.area.Area;
 import nl.tim.questplugin.storage.Storage;
+import nl.tim.questplugin.storage.StorageProvider;
 import nl.tim.questplugin.storage.image.ImageBuilder;
 
 import javax.inject.Inject;
@@ -14,9 +16,9 @@ public class AreaImageBuilder implements ImageBuilder<Area>
     private Storage storage;
 
     @Inject
-    public AreaImageBuilder(Storage storage)
+    public AreaImageBuilder(StorageProvider storageProvider)
     {
-        this.storage = storage;
+        this.storage = storageProvider.getStorage(QuestPlugin.storageType);
     }
 
     @Override
@@ -24,7 +26,7 @@ public class AreaImageBuilder implements ImageBuilder<Area>
     {
         Storage.DataPair<String, Double> dataPair = new Storage.DataPair<>("loc.x", 42.1);
 
-        storage.save(null, Storage.DataType.AREA, dataPair);
+        storage.save(UUID.randomUUID(), Storage.DataType.AREA, dataPair);
     }
 
     @Override

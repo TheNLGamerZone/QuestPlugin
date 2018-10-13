@@ -3,36 +3,39 @@ package nl.tim.questplugin;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import nl.tim.questplugin.storage.Storage;
+import nl.tim.questplugin.storage.StorageProvider;
 import nl.tim.questplugin.storage.image.builders.AreaImageBuilder;
+import nl.tim.questplugin.storage.image.builders.PlayerImageBuilder;
 import nl.tim.questplugin.storage.image.builders.QuestImageBuilder;
+import nl.tim.questplugin.storage.image.builders.RegionImageBuilder;
 import nl.tim.questplugin.utils.LocationSerializer;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.File;
 import java.util.logging.Logger;
 
 public class QuestPlugin extends JavaPlugin
 {
-    // Path constants
-    private static final String AREA_DATA_PATH = "data" + File.separator + "area";
-    private static final String QUEST_DATA_PATH = "data" + File.separator + "quest";
-    private static final String PLAYER_DATA_PATH = "data" + File.separator + "player";
+    public static StorageProvider.StorageType storageType;
 
-    private Logger logger = getLogger();
+    public static Logger logger;
     private Injector injector;
 
-    @Inject
+    @Inject private StorageProvider storageProvider;
     private Storage storage;
 
-    @Inject
-    private AreaImageBuilder areaImageBuilder;
-
-    @Inject
-    private QuestImageBuilder questImageBuilder;
+    @Inject private AreaImageBuilder areaImageBuilder;
+    @Inject private QuestImageBuilder questImageBuilder;
+    @Inject private PlayerImageBuilder playerImageBuilder;
+    @Inject private RegionImageBuilder regionImageBuilder;
 
     @Override
     public void onEnable() {
+        logger = getLogger();
+
         // Enable storage
+        storageType = StorageProvider.StorageType.FILE_BASED;
+
+        QuestPlugin.logger.info("Will use storage type: " + storageType.name());
 
         //TODO: Read config file to determine which storage type to use
 
@@ -40,17 +43,21 @@ public class QuestPlugin extends JavaPlugin
         logger.info("Running dependency injector");
 
         QuestBinder questBinder = new QuestBinder(this, getDataFolder());
-        injector = questBinder.createInjector();
+        this.injector = questBinder.createInjector();
 
         // Inject all classes
-        injector.injectMembers(this);
+        this.injector.injectMembers(this);
 
         // Continue normally
         logger.info("Loading handlers");
 
+        this.storage = this.storageProvider.getStorage(storageType);
         LocationSerializer.configFolder = getDataFolder();
 
-        storage.init();
+        this.storage.init();
+
+        this.areaImageBuilder.save(null);
+
         // Done with loading
     }
 

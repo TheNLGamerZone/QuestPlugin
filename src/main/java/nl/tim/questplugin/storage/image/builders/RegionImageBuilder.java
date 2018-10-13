@@ -2,8 +2,10 @@ package nl.tim.questplugin.storage.image.builders;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import nl.tim.questplugin.QuestPlugin;
 import nl.tim.questplugin.area.Region;
 import nl.tim.questplugin.storage.Storage;
+import nl.tim.questplugin.storage.StorageProvider;
 import nl.tim.questplugin.storage.image.ImageBuilder;
 
 import java.util.UUID;
@@ -14,9 +16,9 @@ public class RegionImageBuilder implements ImageBuilder<Region>
     private Storage storage;
 
     @Inject
-    public RegionImageBuilder(Storage storage)
+    public RegionImageBuilder(StorageProvider storageProvider)
     {
-        this.storage = storage;
+        this.storage = storageProvider.getStorage(QuestPlugin.storageType);
     }
 
     @Override

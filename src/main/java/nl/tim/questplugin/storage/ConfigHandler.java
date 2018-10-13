@@ -20,6 +20,7 @@ public class ConfigHandler
         {
             file.getParentFile().mkdirs();
             try {
+                QuestPlugin.logger.info("Creating file " + file.getName());
                 file.createNewFile();
             } catch (IOException e) {
                 e.printStackTrace();

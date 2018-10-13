@@ -1,9 +1,11 @@
-package nl.tim.questplugin.storage;
+package nl.tim.questplugin.storage.workers;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import com.google.inject.name.Named;
 import nl.tim.questplugin.QuestPlugin;
+import nl.tim.questplugin.storage.ConfigHandler;
+import nl.tim.questplugin.storage.Storage;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -28,8 +30,23 @@ public class FileStorage implements Storage
     @Override
     public void init()
     {
-        System.out.println(questPlugin.getName());
-        System.out.println(storageLocation.getName());
+        QuestPlugin.logger.info("Checking files");
+
+        // Create all files
+        File areaFile = new File(storageLocation + File.separator +
+                DataType.AREA.getFilePath().replace("/", File.separator));
+        File playerFile = new File(storageLocation + File.separator +
+                DataType.PLAYER.getFilePath().replace("/", File.separator));
+        File questFile = new File(storageLocation + File.separator +
+                DataType.QUEST.getFilePath().replace("/", File.separator));
+        File regionFile = new File(storageLocation + File.separator +
+                DataType.REGION.getFilePath().replace("/", File.separator));
+
+        // Check if all files exist
+        ConfigHandler.checkFileExists(areaFile);
+        ConfigHandler.checkFileExists(playerFile);
+        ConfigHandler.checkFileExists(questFile);
+        ConfigHandler.checkFileExists(regionFile);
     }
 
     @Override
@@ -90,5 +107,11 @@ public class FileStorage implements Storage
     public DataPair[] load(UUID uuid, DataType dataType)
     {
         return new DataPair[0];
+    }
+
+    @Override
+    public UUID[] getSavedObjectsUID(DataType dataType)
+    {
+        return new UUID[0];
     }
 }

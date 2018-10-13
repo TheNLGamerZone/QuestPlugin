@@ -1,5 +1,7 @@
 package nl.tim.questplugin.storage;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 import java.util.UUID;
 
 public interface Storage
@@ -29,6 +31,15 @@ public interface Storage
         {
             return this.sqlTable;
         }
+
+        @Override
+        public String toString()
+        {
+            return new ToStringBuilder(this)
+                    .append(filePath)
+                    .append(sqlTable)
+                    .toString();
+        }
     }
 
     class DataPair<K extends String, V>
@@ -41,24 +52,55 @@ public interface Storage
             this.data = data;
         }
 
-        K getKey()
+        public K getKey()
         {
             return this.key;
         }
 
-        V getData()
+        public V getData()
         {
             return this.data;
         }
+
+        @Override
+        public String toString()
+        {
+            return new ToStringBuilder(this)
+                    .append(key)
+                    .append(data)
+                    .toString();
+        }
     }
 
+    /**
+     * Setup things the selected storage type needs, like files or connections
+     */
     void init();
 
+    /**
+     * Save one DataPair
+     * Can be used to save one specific piece of data
+     */
     void save(UUID uuid, DataType dataType, DataPair dataPair);
 
+    /**
+     * Save multiple DataPairs
+     * Can be used to save all data of an object with given UUID
+     */
     void save(UUID uuid, DataType dataType, DataPair[] dataPairs);
 
+    /**
+     * Load one piece of saved data
+     */
     DataPair load(UUID uuid, DataType dataType, String key);
 
+    /**
+     * Load all data of a given object with given UUID
+     */
     DataPair[] load(UUID uuid, DataType dataType);
+
+    /**
+     * Can be used to get all uuids of objects saved of the given DataType
+     */
+    UUID[] getSavedObjectsUID(DataType dataType);
 }

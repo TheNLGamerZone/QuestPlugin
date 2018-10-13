@@ -2,8 +2,10 @@ package nl.tim.questplugin.storage.image.builders;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import nl.tim.questplugin.QuestPlugin;
 import nl.tim.questplugin.player.QPlayer;
 import nl.tim.questplugin.storage.Storage;
+import nl.tim.questplugin.storage.StorageProvider;
 import nl.tim.questplugin.storage.image.ImageBuilder;
 
 import java.util.UUID;
@@ -14,9 +16,9 @@ public class PlayerImageBuilder implements ImageBuilder<QPlayer>
     private Storage storage;
 
     @Inject
-    public PlayerImageBuilder(Storage storage)
+    public PlayerImageBuilder(StorageProvider storageProvider)
     {
-        this.storage = storage;
+        this.storage = storageProvider.getStorage(QuestPlugin.storageType);
     }
 
     @Override
