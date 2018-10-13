@@ -6,11 +6,17 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="MC" />
+      </profile>
+      <profile name="Annotation profile for QuestPlugin" enabled="true">
+        <sourceOutputDir name="${dir}/generated-sources/annotations" />
+        <sourceTestOutputDir name="${dir}/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="QuestPlugin" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="MC" target="1.5" />
+      <module name="QuestPlugin" target="8" />
     </bytecodeTargetLevel>
   </component>
 </project>
