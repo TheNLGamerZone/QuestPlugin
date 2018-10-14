@@ -13,7 +13,6 @@ public class SQLStorage implements Storage
 {
     private QuestPlugin questPlugin;
 
-
     @Inject
     public SQLStorage(QuestPlugin questPlugin)
     {
@@ -21,9 +20,10 @@ public class SQLStorage implements Storage
     }
 
     @Override
-    public void init()
+    public boolean init()
     {
-        System.out.println("SQL:" + questPlugin.getName());
+        QuestPlugin.logger.warning("SQL is not yet implemented!");
+        return false;
     }
 
     @Override

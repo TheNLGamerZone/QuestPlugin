@@ -74,8 +74,9 @@ public interface Storage
 
     /**
      * Setup things the selected storage type needs, like files or connections
+     * @return true if storage loaded successfully, false otherwise
      */
-    void init();
+    boolean init();
 
     /**
      * Save one DataPair

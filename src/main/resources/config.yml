@@ -1,0 +1,38 @@
+#
+# Configuration file for QuestPlugin
+#
+
+### Storage (the boring part) ###
+
+# Storage type - Here you can specify which type of data storage you wish to use.
+# Valid types are:
+#   FILE_BASED      - Will use regular .yml files to store data
+#   SQL_BASED       - Will use a SQL database to store data (currently not supported)
+#   MONGO_BASED     - Will use a Mongo database to store data (currently not supported)
+# Extra note: At the moment storage type transfer is not yet supported, this means changing storage type will
+# effectively reset you database
+storage_type: FILE_BASED
+
+
+# SQL Config - Here you can configure your SQL database
+# Will only be used if you specify SQL_BASED as your storage type
+sql_hostname: replace_this_with_your_hostname
+sql_port: replace_this_with_your_port
+sql_database: replace_this_with_your_database
+sql_username: replace_this_with_your_username
+sql_password: replace_this_with_your_password
+
+# Mongo config - Here you can configure you Mongo database
+# Will only be used if you specify MONGO_BASED as your storage type
+mongo_hostname: replace_this_with_your_hostname
+mongo_port: replace_this_with_your_port
+mongo_database: replace_this_with_your_database
+mongo_username: replace_this_with_your_username
+mongo_password: replace_this_with_your_password
+
+### Quests (the fun part) ###
+
+# Whether or not quests can be bound to regions
+# If set to true players can progress quests when they are in a certain region
+region_based_quests: true
+

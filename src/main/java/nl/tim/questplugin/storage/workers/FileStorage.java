@@ -28,7 +28,7 @@ public class FileStorage implements Storage
     }
 
     @Override
-    public void init()
+    public boolean init()
     {
         QuestPlugin.logger.info("Checking files");
 
@@ -47,6 +47,10 @@ public class FileStorage implements Storage
         ConfigHandler.checkFileExists(playerFile);
         ConfigHandler.checkFileExists(questFile);
         ConfigHandler.checkFileExists(regionFile);
+
+
+        // Files will never fail
+        return true;
     }
 
     @Override
