@@ -94,7 +94,7 @@
                 </configuration>
             </plugin>
         </plugins>
-        <directory>plugins</directory>
+        <directory>${project.basedir}/server/plugins</directory>
     </build>
 
 </project>
