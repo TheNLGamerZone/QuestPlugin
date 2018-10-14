@@ -94,7 +94,7 @@
                 </configuration>
             </plugin>
         </plugins>
-        <directory>${dir}</directory>
+        <directory>plugins</directory>
     </build>
 
 </project>
