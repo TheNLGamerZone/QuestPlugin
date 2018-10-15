@@ -32,7 +32,7 @@ public final class LocationSerializer
         File dataFile = new File(configFolder + File.separator + path);
         FileConfiguration fileConfiguration = new YamlConfiguration();
 
-        ConfigHandler.checkFileExists(dataFile);
+        ConfigHandler.createFileIfNotExists(dataFile);
 
         try
         {

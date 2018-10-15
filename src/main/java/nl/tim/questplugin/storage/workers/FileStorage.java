@@ -43,13 +43,13 @@ public class FileStorage implements Storage
                 DataType.REGION.getFilePath().replace("/", File.separator));
 
         // Check if all files exist
-        ConfigHandler.checkFileExists(areaFile);
-        ConfigHandler.checkFileExists(playerFile);
-        ConfigHandler.checkFileExists(questFile);
-        ConfigHandler.checkFileExists(regionFile);
+        ConfigHandler.createFileIfNotExists(areaFile);
+        ConfigHandler.createFileIfNotExists(playerFile);
+        ConfigHandler.createFileIfNotExists(questFile);
+        ConfigHandler.createFileIfNotExists(regionFile);
 
 
-        // Files will never fail
+        // Files will never fail me
         return true;
     }
 
@@ -75,7 +75,7 @@ public class FileStorage implements Storage
         FileConfiguration fileConfiguration = new YamlConfiguration();
 
         // Check if file exists, if not make one
-        ConfigHandler.checkFileExists(dataFile);
+        ConfigHandler.createFileIfNotExists(dataFile);
 
         try
         {

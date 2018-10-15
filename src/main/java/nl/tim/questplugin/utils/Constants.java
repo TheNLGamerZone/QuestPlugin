@@ -3,6 +3,8 @@ package nl.tim.questplugin.utils;
 public final class Constants
 {
     // Config constants
+    public static final String NEWEST_CONFIG_VERSION = "c7cda557-44b6-40d5-a27e-c37790a2080d";
+    public static final String CONFIG_VERSION_OPTION = "config_version";
     public static final String STORAGE_OPTION = "storage_type";
 
     public static final String SQL_HOSTNAME = "sql_hostname";

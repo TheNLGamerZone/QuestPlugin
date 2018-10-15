@@ -12,8 +12,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import java.util.LinkedHashSet;
 import java.util.UUID;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
@@ -64,23 +63,56 @@ public class PolygonTest
     }
 
     @Test
-    public void polygon_equals_test()
+    public void polygon_equals_test_equal()
     {
-        assertFalse("Polygon should check instance", regularPolygon.equals(testObject));
-        assertTrue("These object are equal", regularPolygon.equals(regularPolygon));
-        assertTrue("These objects are equal", regularPolygon.equals(testPolygon));
-        assertFalse("These objects are not equal", regularPolygon.equals(new Polygon(UUID.randomUUID(), new LinkedHashSet<>())));
-
-        System.out.println("Hashcode: " + regularPolygon.hashCode());
+        assertEquals("These objects are equal", regularPolygon, testPolygon);
     }
 
     @Test
-    public void polygon_in_region()
+    public void polygon_equals_test_not_instance_of()
+    {
+        assertFalse("Polygon should check instance", regularPolygon.equals(testObject));
+    }
+
+    @Test
+    public void polygon_equals_test_same_instance()
+    {
+        assertEquals("These object are equal", regularPolygon, regularPolygon);
+    }
+
+    @Test
+    public void polygon_equals_test_not_equal()
+    {
+        assertFalse("These objects are not equal", regularPolygon.equals(new Polygon(UUID.randomUUID(), new LinkedHashSet<>())));
+    }
+
+    @Test
+    public void polygon_in_region_valid()
     {
         assertTrue("Should be in polygon", regularPolygon.inRegion(locationInPolygon, true));
+    }
+
+    @Test
+    public void polygon_in_region_valid_just_barely()
+    {
         assertTrue("Should be in polygon", regularPolygon.inRegion(locationInPolygonTightFit, true));
+    }
+
+    @Test
+    public void polygon_in_region_invalid_within_borders()
+    {
         assertFalse("Should not be in polygon", regularPolygon.inRegion(locationNotInPolygon, true));
+    }
+
+    @Test
+    public void polygon_in_region_invalid_outside_borders()
+    {
         assertFalse("Should not be in polygon", regularPolygon.inRegion(locationNotInPolygonOutsideBorder, true));
+    }
+
+    @Test
+    public void polygon_in_region_invalid_other_world()
+    {
         assertFalse("Should not be in polygon (other world)", regularPolygon.inRegion(locationNotInWorld, true));
     }
 }

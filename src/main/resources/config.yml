@@ -1,3 +1,7 @@
+## Ignore this value, unless you know what you're doing
+config_version: c7cda557-44b6-40d5-a27e-c37790a2080d
+
+
 #
 # Configuration file for QuestPlugin
 #
@@ -35,4 +39,5 @@ mongo_password: replace_this_with_your_password
 # Whether or not quests can be bound to regions
 # If set to true players can progress quests when they are in a certain region
 region_based_quests: true
+
 
