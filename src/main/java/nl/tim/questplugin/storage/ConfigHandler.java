@@ -1,7 +1,6 @@
 package nl.tim.questplugin.storage;
 
 import nl.tim.questplugin.QuestPlugin;
-import nl.tim.questplugin.quest.Quest;
 import nl.tim.questplugin.utils.Constants;
 
 import java.io.File;
@@ -32,7 +31,7 @@ public class ConfigHandler
         // Check for update
         if (!compareVersions())
         {
-            QuestPlugin.logger.warning("Your config.yml file is outdated, this might cause the plugin to malfunctions!");
+            QuestPlugin.logger.warning("Your config.yml file is outdated, this might cause the plugin to malfunction!");
             QuestPlugin.logger.warning("Consider updating with /quests config update");
         }
     }
@@ -54,6 +53,12 @@ public class ConfigHandler
         } else if (type == Integer.class)
         {
             return type.cast(Integer.valueOf(result));
+        } else if (type == Long.class)
+        {
+            return type.cast(Long.valueOf(result));
+        } else if (type == Double.class)
+        {
+            return type.cast(Double.valueOf(result));
         } else
         {
             // Just return a string
@@ -83,6 +88,7 @@ public class ConfigHandler
         return oldVersion.equals(currentVersion);
     }
 
+    //TODO: 'connect this with command /quests config update'
     /**
      * Method to update config, should it change, while maintaining old settings
      */
@@ -124,28 +130,33 @@ public class ConfigHandler
             {
                 boolean replaced = false;
 
-                for (Storage.DataPair<String, String> dataPair : oldSettings)
+                // Only start comparing keys if this line is not a comment
+                if (!(line.startsWith("#")))
                 {
-                    String key = dataPair.getKey();
-                    String data = dataPair.getData();
-                    String oldData = line.split(":\\s").length > 1 ?
-                            line.split(":\\s")[1] :
-                            "null";
-
-                    // If the current line has a saved value, replace the default value
-                    if (line.startsWith(key))
+                    for (Storage.DataPair<String, String> dataPair : oldSettings)
                     {
-                        if (data.equals(oldData))
+                        String key = dataPair.getKey();
+                        String data = dataPair.getData();
+                        String oldData = line.split(":\\s").length > 1 ?
+                                line.split(":\\s")[1] :
+                                "null";
+
+                        // If the current line has a saved value, replace the default value
+                        if (line.startsWith(key))
                         {
-                            // The saved value was never changed, so we're just skipping this line
+                            if (data.equals(oldData))
+                            {
+                                // The saved value was never changed, so we're just skipping this line
+                                break;
+                            }
+
+                            QuestPlugin.logger.info("Replacing default value for '" + key + "' with saved value '" + data + "'");
+                            editedLines.add(key + ": " + data);
+
+                            // Set replaced flag
+                            replaced = true;
                             break;
                         }
-
-                        QuestPlugin.logger.info("Replacing default value for '" + key + "' with saved value '" + data + "'");
-                        editedLines.add(key + ": " + data);
-
-                        // Set replaced flag
-                        replaced = true;
                     }
                 }
 

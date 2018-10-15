@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import nl.tim.questplugin.QuestPlugin;
 import nl.tim.questplugin.storage.Storage;
 
+import java.util.List;
 import java.util.UUID;
 
 public class MongoStorage implements Storage
@@ -38,12 +39,12 @@ public class MongoStorage implements Storage
     }
 
     @Override
-    public DataPair[] load(UUID uuid, DataType dataType) {
-        return new DataPair[0];
+    public List<DataPair> load(UUID uuid, DataType dataType) {
+        return null;
     }
 
     @Override
-    public UUID[] getSavedObjectsUID(DataType dataType) {
-        return new UUID[0];
+    public List<UUID> getSavedObjectsUID(DataType dataType) {
+        return null;
     }
 }

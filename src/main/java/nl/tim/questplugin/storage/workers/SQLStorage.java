@@ -6,6 +6,7 @@ import nl.tim.questplugin.storage.Storage;
 
 import javax.inject.Singleton;
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 @Singleton
@@ -47,14 +48,14 @@ public class SQLStorage implements Storage
     }
 
     @Override
-    public DataPair[] load(UUID uuid, DataType dataType)
+    public List<DataPair> load(UUID uuid, DataType dataType)
     {
-        return new DataPair[0];
+        return null;
     }
 
     @Override
-    public UUID[] getSavedObjectsUID(DataType dataType)
+    public List<UUID> getSavedObjectsUID(DataType dataType)
     {
-        return new UUID[0];
+        return null;
     }
 }

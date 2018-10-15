@@ -13,8 +13,13 @@ import java.io.IOException;
 import java.util.UUID;
 
 @Singleton
+@Deprecated
 public final class LocationSerializer
 {
+    /*
+    This class is currently obsolete because of the new file storage
+    Will rewrite this to generate DataPairs instead to make saving locations easier
+     */
     public static File configFolder;
 
     public static void saveLocation(String path, String internalPath, Location location)

@@ -1,7 +1,10 @@
 package nl.tim.questplugin.storage;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 public interface Storage
@@ -70,6 +73,33 @@ public interface Storage
                     .append(data)
                     .toString();
         }
+
+        @Override
+        public boolean equals(Object object)
+        {
+            if (object == this)
+            {
+                return true;
+            }
+
+            if (!(object instanceof DataType))
+            {
+                return false;
+            }
+
+            DataPair dataPair = (DataPair) object;
+
+            return new EqualsBuilder()
+                    .append(this.key, dataPair.key)
+                    .append(this.data, dataPair.data)
+                    .isEquals();
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return Objects.hash(this.key, this.data);
+        }
     }
 
     /**
@@ -97,11 +127,13 @@ public interface Storage
 
     /**
      * Load all data of a given object with given UUID
+     * This function will bloat very quickly with large player bases
+     * Call this function with argument {@link DataType#PLAYER} at your own risk!
      */
-    DataPair[] load(UUID uuid, DataType dataType);
+    List<DataPair> load(UUID uuid, DataType dataType);
 
     /**
      * Can be used to get all uuids of objects saved of the given DataType
      */
-    UUID[] getSavedObjectsUID(DataType dataType);
+    List<UUID> getSavedObjectsUID(DataType dataType);
 }
