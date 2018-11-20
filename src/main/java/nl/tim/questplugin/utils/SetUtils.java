@@ -17,7 +17,7 @@ public class SetUtils
      * @param <V> type of {@link nl.tim.questplugin.storage.Storage.DataPair}
      * @return A set containing all {@link nl.tim.questplugin.storage.Storage.DataPair} which are in the given section.
      */
-    public <V> Set<Storage.DataPair<V>> searchSetForKeys(Set<Storage.DataPair<V>> searchSet,
+    public static <V> Set<Storage.DataPair<V>> searchSetForKeys(Set<Storage.DataPair<V>> searchSet,
                                                                               String section)
     {
         Set<Storage.DataPair<V>> searchedSet = new HashSet<>();

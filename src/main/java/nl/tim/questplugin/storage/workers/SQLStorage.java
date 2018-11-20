@@ -23,7 +23,7 @@ public class SQLStorage implements Storage
     @Override
     public boolean init()
     {
-        QuestPlugin.logger.warning("SQL is not yet implemented!");
+        QuestPlugin.getLog().warning("SQL is not yet implemented!");
         return false;
     }
 

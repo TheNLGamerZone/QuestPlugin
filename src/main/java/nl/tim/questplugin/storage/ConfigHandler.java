@@ -29,10 +29,10 @@ public class ConfigHandler
         this.dataFolder = this.questPlugin.getDataFolder();
 
         // Check for update
-        if (!compareVersions())
+        if (!compareVersions(Constants.NEWEST_CONFIG_VERSION))
         {
-            QuestPlugin.logger.warning("Your config.yml file is outdated, this might cause the plugin to malfunction!");
-            QuestPlugin.logger.warning("Consider updating with /quests config update");
+            QuestPlugin.getLog().warning("Your config.yml file is outdated, this might cause the plugin to malfunction!");
+            QuestPlugin.getLog().warning("Consider updating with /quests config update");
         }
     }
 
@@ -80,40 +80,37 @@ public class ConfigHandler
      * Checks if the config.yml has an older version
      * @return true if the config.yml file is up-to-date, false otherwise
      */
-    public boolean compareVersions()
+    public boolean compareVersions(String compareTo)
     {
         String oldVersion = this.getOption(String.class, "config_version");
-        String currentVersion = Constants.NEWEST_CONFIG_VERSION;
 
-        return oldVersion.equals(currentVersion);
+        return oldVersion.equals(compareTo);
     }
 
     //TODO: 'connect this with command /quests config update'
     /**
      * Method to update config, should it change, while maintaining old settings
      */
-    public boolean updateConfig()
+    public boolean updateConfig(String compareTo)
     {
         String configPath = new File("").getAbsolutePath() + File.separator + this.dataFolder + File.separator + "config.yml";
 
         // Check if config.yml still exists and create if not
         this.questPlugin.saveResource("config.yml", false);
 
-        String currentVersion = Constants.NEWEST_CONFIG_VERSION;
-
         // Starting overwriting
-        QuestPlugin.logger.info("Location of config file: " + configPath);
-        QuestPlugin.logger.info("Updating to version:" + currentVersion);
+        QuestPlugin.getLog().info("Location of config file: " + configPath);
+        QuestPlugin.getLog().info("Updating to version:" + compareTo);
 
         // Check if we have to update
-        if (compareVersions())
+        if (compareVersions(compareTo))
         {
-            QuestPlugin.logger.warning("Config is already up-to-date!");
+            QuestPlugin.getLog().warning("Config is already up-to-date!");
             return false;
         }
 
         // Getting old settings
-        List<Storage.DataPair<String>> oldSettings = this.getDataFromOldConfig();
+        List<Storage.DataPair<String>> oldSettings = this.getDataFromOldConfig(this.questPlugin.getConfig().getKeys(false));
 
 
         // Create new config file
@@ -150,7 +147,7 @@ public class ConfigHandler
                                 break;
                             }
 
-                            QuestPlugin.logger.info("Replacing default value for '" + key + "' with saved value '" + data + "'");
+                            QuestPlugin.getLog().info("Replacing default value for '" + key + "' with saved value '" + data + "'");
                             editedLines.add(key + ": " + data);
 
                             // Set replaced flag
@@ -178,9 +175,13 @@ public class ConfigHandler
         return true;
     }
 
-    private List<Storage.DataPair<String>> getDataFromOldConfig()
+    /**
+     * Returns all old settings from the given keys
+     * @param keys
+     * @return
+     */
+    private List<Storage.DataPair<String>> getDataFromOldConfig(Set<String> keys)
     {
-        Set<String> keys = this.questPlugin.getConfig().getKeys(false);
         List<Storage.DataPair<String>> oldData = new ArrayList<>();
 
         // Looping through all keys and saving old data (settings)
@@ -195,7 +196,7 @@ public class ConfigHandler
             String data = this.getOption(String.class, key);
             Storage.DataPair<String> dataPair = new Storage.DataPair<>(key, data);
 
-            QuestPlugin.logger.info("Saving setting '" + key + "', with value '" + data + "'");
+            QuestPlugin.getLog().info("Saving setting '" + key + "', with value '" + data + "'");
 
             // Add to array
             oldData.add(dataPair);
@@ -204,6 +205,10 @@ public class ConfigHandler
         return oldData;
     }
 
+    /**
+     * Creates a file if it does not yet exist.
+     * @param file file to create
+     */
     public static void createFileIfNotExists(File file)
     {
         if (!file.exists())
@@ -211,7 +216,7 @@ public class ConfigHandler
             file.getParentFile().mkdirs();
             try
             {
-                QuestPlugin.logger.info("Creating file " + file.getName());
+                QuestPlugin.getLog().info("Creating file " + file.getName());
                 file.createNewFile();
             } catch (IOException e)
             {

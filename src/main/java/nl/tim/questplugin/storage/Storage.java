@@ -82,7 +82,7 @@ public interface Storage
                 return true;
             }
 
-            if (!(object instanceof DataType))
+            if (!(object instanceof DataPair))
             {
                 return false;
             }

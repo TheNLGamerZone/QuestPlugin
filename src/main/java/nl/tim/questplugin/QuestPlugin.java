@@ -20,7 +20,7 @@ public class QuestPlugin extends JavaPlugin
 {
     public static StorageProvider.StorageType storageType;
 
-    public static Logger logger;
+    private static Logger logger;
     private Injector injector;
 
     @Inject private StorageProvider storageProvider;
@@ -116,5 +116,10 @@ public class QuestPlugin extends JavaPlugin
     public ConfigHandler getConfigHandler()
     {
         return this.configHandler;
+    }
+
+    public static Logger getLog()
+    {
+        return logger;
     }
 }

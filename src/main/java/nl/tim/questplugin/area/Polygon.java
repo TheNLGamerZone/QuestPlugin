@@ -29,7 +29,7 @@ public class Polygon extends Region
             this.endPoint = new Point(endLocation.getX(), endLocation.getY());
         }
 
-        boolean intersect(Line line)
+        private boolean intersect(Line line)
         {
             return Line2D.linesIntersect(startPoint.x, startPoint.y, endPoint.x, endPoint.y,
                     line.startPoint.x, line.startPoint.y, line.endPoint.x, line.endPoint.y);

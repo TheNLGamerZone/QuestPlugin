@@ -31,7 +31,7 @@ public class FileStorage implements Storage
     @Override
     public boolean init()
     {
-        QuestPlugin.logger.info("Checking files");
+        QuestPlugin.getLog().info("Checking files");
 
         // Create all files
         File areaFile = new File(storageLocation + File.separator +
