@@ -18,20 +18,17 @@ public class Cube extends Region
 
     public Cube(UUID uuid, Location location1, Location location2, boolean ignoreHeight)
     {
-        super(ignoreHeight);
+        super(ID_CUBE, uuid, location1.getWorld(), ignoreHeight);
 
-        this.uuid = uuid;
         this.location1 = location1;
         this.location2 = location2;
-        this.world = location1.getWorld();
-        this.regionFileIdentifier = ID_CUBE;
     }
 
     @Override
     public boolean inRegion(Location location, boolean ignoreHeight)
     {
         // Check if location is in the same world
-        if (!location.getWorld().getName().equals(this.world.getName()))
+        if (!location.getWorld().getName().equals(this.getWorld().getName()))
         {
             return false;
         }
@@ -67,7 +64,7 @@ public class Cube extends Region
         Cube cube = (Cube) object;
 
         return new EqualsBuilder()
-                .append(this.uuid, cube.uuid)
+                .append(this.getUUID(), cube.getUUID())
                 .append(this.location1, cube.location1)
                 .append(this.location2, cube.location2)
                 .isEquals();
@@ -76,6 +73,6 @@ public class Cube extends Region
     @Override
     public int hashCode()
     {
-        return Objects.hash(this.uuid, this.location1, this.location2);
+        return Objects.hash(this.getUUID(), this.location1, this.location2);
     }
 }

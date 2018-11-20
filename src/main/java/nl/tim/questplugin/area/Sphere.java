@@ -18,20 +18,17 @@ public class Sphere extends Region
 
     public Sphere(UUID uuid, Location center, double radius, boolean ignoreHeight)
     {
-        super(ignoreHeight);
+        super(ID_SPHERE, uuid, center.getWorld(), ignoreHeight);
 
-        this.uuid = uuid;
         this.center = center;
         this.radius = radius;
-        this.world = center.getWorld();
-        this.regionFileIdentifier = ID_SPHERE;
     }
 
     @Override
     public boolean inRegion(Location location, boolean ignoreHeight)
     {
         // Check if location is in the same world
-        if (!location.getWorld().getName().equals(this.world.getName()))
+        if (!location.getWorld().getName().equals(this.getWorld().getName()))
         {
             return false;
         }
@@ -63,7 +60,7 @@ public class Sphere extends Region
         Sphere sphere = (Sphere) object;
 
         return new EqualsBuilder()
-                .append(this.uuid, sphere.uuid)
+                .append(this.getUUID(), sphere.getUUID())
                 .append(this.center, sphere.center)
                 .append(this.radius, sphere.radius)
                 .isEquals();
@@ -72,6 +69,6 @@ public class Sphere extends Region
     @Override
     public int hashCode()
     {
-        return Objects.hash(this.uuid, this.center, this.radius);
+        return Objects.hash(this.getUUID(), this.center, this.radius);
     }
 }

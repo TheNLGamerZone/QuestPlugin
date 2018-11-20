@@ -49,12 +49,6 @@ public class FileStorage implements Storage
         ConfigHandler.createFileIfNotExists(questFile);
         ConfigHandler.createFileIfNotExists(regionFile);
 
-        // TODO: Remove this
-        for (String s : getDeepKeys(getFileConfig(DataType.AREA), "permissions"))
-        {
-            QuestPlugin.logger.info(s);
-        }
-
         // Files will never fail me
         return true;
     }

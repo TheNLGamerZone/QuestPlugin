@@ -113,7 +113,7 @@ public class ConfigHandler
         }
 
         // Getting old settings
-        List<Storage.DataPair<String, String>> oldSettings = this.getDataFromOldConfig();
+        List<Storage.DataPair<String>> oldSettings = this.getDataFromOldConfig();
 
 
         // Create new config file
@@ -133,7 +133,7 @@ public class ConfigHandler
                 // Only start comparing keys if this line is not a comment
                 if (!(line.startsWith("#")))
                 {
-                    for (Storage.DataPair<String, String> dataPair : oldSettings)
+                    for (Storage.DataPair<String> dataPair : oldSettings)
                     {
                         String key = dataPair.getKey();
                         String data = dataPair.getData();
@@ -178,10 +178,10 @@ public class ConfigHandler
         return true;
     }
 
-    private List<Storage.DataPair<String, String>> getDataFromOldConfig()
+    private List<Storage.DataPair<String>> getDataFromOldConfig()
     {
         Set<String> keys = this.questPlugin.getConfig().getKeys(false);
-        List<Storage.DataPair<String, String>> oldData = new ArrayList<>();
+        List<Storage.DataPair<String>> oldData = new ArrayList<>();
 
         // Looping through all keys and saving old data (settings)
         for (String key : keys)
@@ -193,7 +193,7 @@ public class ConfigHandler
             }
 
             String data = this.getOption(String.class, key);
-            Storage.DataPair<String, String> dataPair = new Storage.DataPair<>(key, data);
+            Storage.DataPair<String> dataPair = new Storage.DataPair<>(key, data);
 
             QuestPlugin.logger.info("Saving setting '" + key + "', with value '" + data + "'");
 

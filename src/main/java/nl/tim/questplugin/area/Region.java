@@ -13,19 +13,42 @@ public abstract class Region
     public static final String ID_POLYGON = "0d403ffa";
 
     // Regular fields
-    String regionFileIdentifier;
-    UUID uuid;
-    World world;
-    boolean ignoreHeight;
+    private String regionFileIdentifier;
+    private UUID uuid;
+    private World world;
+    private boolean ignoreHeight;
 
-    public Region(boolean ignoreHeight)
+    public Region(String regionFileIdentifier, UUID uiud, World world, boolean ignoreHeight)
     {
+        this.regionFileIdentifier = regionFileIdentifier;
+        this.uuid = uiud;
+        this.world = world;
         this.ignoreHeight = ignoreHeight;
     }
 
     public boolean inRegion(Location location)
     {
         return inRegion(location, ignoreHeight);
+    }
+
+    public void setWorld(World world)
+    {
+        this.world = world;
+    }
+
+    public World getWorld()
+    {
+        return this.world;
+    }
+
+    public UUID getUUID()
+    {
+        return this.uuid;
+    }
+
+    public String getRegionFileIdentifier()
+    {
+        return this.regionFileIdentifier;
     }
 
     public abstract boolean inRegion(Location location, boolean ignoreHeight);

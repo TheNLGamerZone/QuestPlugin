@@ -45,17 +45,17 @@ public interface Storage
         }
     }
 
-    class DataPair<K extends String, V>
+    class DataPair<V>
     {
-        private K key;
+        private String key;
         private V data;
 
-        public DataPair(K key, V data){
+        public DataPair(String key, V data){
             this.key = key;
             this.data = data;
         }
 
-        public K getKey()
+        public String getKey()
         {
             return this.key;
         }

@@ -24,7 +24,7 @@ public class AreaImageBuilder implements ImageBuilder<Area>
     @Override
     public void save(Area area)
     {
-        Storage.DataPair<String, Double> dataPair = new Storage.DataPair<>("loc.x", 42.1);
+        Storage.DataPair<Double> dataPair = new Storage.DataPair<>("loc.x", 42.1);
 
         storage.save(UUID.randomUUID(), Storage.DataType.AREA, dataPair);
     }

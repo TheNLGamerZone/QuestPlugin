@@ -1,4 +1,3 @@
-# QuestPlugin 
-[![Build Status](https://travis-ci.com/TheNLGamerZone/QuestPlugin.svg?token=bkJp1PkskV8pwr6vMxAJ&branch=master)](https://travis-ci.com/TheNLGamerZone/QuestPlugin) [![codecov](https://codecov.io/gh/TheNLGamerZone/QuestPlugin/branch/master/graph/badge.svg?token=L9SBEVscmL)](https://codecov.io/gh/TheNLGamerZone/QuestPlugin)
+# QuestPlugin [![Build Status](https://travis-ci.com/TheNLGamerZone/QuestPlugin.svg?token=bkJp1PkskV8pwr6vMxAJ&branch=master)](https://travis-ci.com/TheNLGamerZone/QuestPlugin) [![codecov](https://codecov.io/gh/TheNLGamerZone/QuestPlugin/branch/master/graph/badge.svg?token=L9SBEVscmL)](https://codecov.io/gh/TheNLGamerZone/QuestPlugin) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/9be856236e574ad4a0c0c50511010f9e)](https://www.codacy.com?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=TheNLGamerZone/QuestPlugin&amp;utm_campaign=Badge_Grade)
 
 Attempt at a quest plugin

@@ -11,10 +11,17 @@ import java.util.UUID;
 
 public class Polygon extends Region
 {
+    private LinkedHashSet<Location> locationSet;
+
+    private double xMin = Integer.MAX_VALUE;
+    private double xMax = Integer.MIN_VALUE;
+    private double yMin = Integer.MAX_VALUE;
+    private double yMax = Integer.MIN_VALUE;
+
     protected class Line
     {
-        Point startPoint;
-        Point endPoint;
+        private Point startPoint;
+        private Point endPoint;
 
         Line(Location startLocation, Location endLocation)
         {
@@ -39,8 +46,8 @@ public class Polygon extends Region
 
     protected class Point
     {
-        double x;
-        double y;
+        private double x;
+        private double y;
 
         Point(double x, double y)
         {
@@ -57,13 +64,6 @@ public class Polygon extends Region
         }
     }
 
-    private LinkedHashSet<Location> locationSet;
-
-    private double xMin = Integer.MAX_VALUE;
-    private double xMax = Integer.MIN_VALUE;
-    private double yMin = Integer.MAX_VALUE;
-    private double yMax = Integer.MIN_VALUE;
-
     public Polygon(UUID uuid, LinkedHashSet<Location> locationSet)
     {
         this(uuid, locationSet, false);
@@ -71,16 +71,14 @@ public class Polygon extends Region
 
     public Polygon(UUID uuid, LinkedHashSet<Location> locationSet, boolean ignoreHeight)
     {
-        super(ignoreHeight);
+        super(ID_POLYGON, uuid, null, ignoreHeight);
 
-        this.uuid = uuid;
         this.locationSet = locationSet;
-        this.regionFileIdentifier = ID_POLYGON;
 
         if (locationSet.size() > 0)
         {
             Location firstLocation = ((Location) locationSet.toArray()[0]);
-            this.world = firstLocation != null ? firstLocation.getWorld() : null;
+            this.setWorld(firstLocation != null ? firstLocation.getWorld() : null);
         }
 
         this.calcBorders();
@@ -95,10 +93,21 @@ public class Polygon extends Region
             double x = location.getX();
             double y = location.getY();
 
-            this.xMin = x < this.xMin ? x : this.xMin;
-            this.xMax = x > this.xMax ? x : this.xMax;
-            this.yMin = y < this.yMin ? y : this.yMin;
-            this.yMax = y > this.yMax ? y : this.yMax;
+            if (x < this.xMin)
+            {
+                this.xMin = x;
+            } else if (x > this.xMax)
+            {
+                this.xMax = x;
+            }
+
+            if (y < this.yMin)
+            {
+                this.yMin = y;
+            } else if (y > this.yMax)
+            {
+                this.yMax = y;
+            }
         }
     }
 
@@ -106,7 +115,7 @@ public class Polygon extends Region
     public boolean inRegion(Location location, boolean ignoreHeight)
     {
         // Check if location is in the same world
-        if (!location.getWorld().getName().equals(this.world.getName()))
+        if (!location.getWorld().getName().equals(this.getWorld().getName()))
         {
             return false;
         }
@@ -171,7 +180,7 @@ public class Polygon extends Region
         Polygon polygon = (Polygon) object;
 
         return new EqualsBuilder()
-                .append(this.uuid, polygon.uuid)
+                .append(this.getUUID(), polygon.getUUID())
                 .append(this.locationSet, polygon.locationSet)
                 .isEquals();
     }
@@ -179,6 +188,6 @@ public class Polygon extends Region
     @Override
     public int hashCode()
     {
-        return Objects.hash(this.uuid, this.locationSet);
+        return Objects.hash(this.getUUID(), this.locationSet);
     }
 }
