@@ -49,7 +49,7 @@ public class FileStorage implements Storage
         ConfigHandler.createFileIfNotExists(questFile);
         ConfigHandler.createFileIfNotExists(regionFile);
 
-
+        // TODO: Remove this
         for (String s : getDeepKeys(getFileConfig(DataType.AREA), "permissions"))
         {
             QuestPlugin.logger.info(s);
@@ -91,7 +91,7 @@ public class FileStorage implements Storage
         ConfigurationSection configurationSection = fileConfiguration.getConfigurationSection(section);
         Set<String> deepKeys = new HashSet<>();
 
-        // Check if the set is empty (this key is the deepest possible key)
+        // Check if the section is empty (this key is the deepest possible key)
         if (configurationSection == null)
         {
             deepKeys.add(section);
