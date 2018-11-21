@@ -24,7 +24,10 @@ public class PolygonTest
     private Location locationInPolygon;
     private Location locationInPolygonTightFit;
     private Location locationNotInPolygon;
-    private Location locationNotInPolygonOutsideBorder;
+    private Location locationNotInPolygonOutsideBorderXMin;
+    private Location locationNotInPolygonOutsideBorderXMax;
+    private Location locationNotInPolygonOutsideBorderYMin;
+    private Location locationNotInPolygonOutsideBorderYMax;
     private Location locationNotInWorld;
 
     @Before
@@ -53,7 +56,10 @@ public class PolygonTest
         locationInPolygon = new Location(world1, 17, 19, 0);
         locationInPolygonTightFit = new Location(world1, 11, 18.3, 0);
         locationNotInPolygon = new Location(world1, 12.7, 16.8, 0);
-        locationNotInPolygonOutsideBorder = new Location(world1, 42, 42, 0);
+        locationNotInPolygonOutsideBorderXMin = new Location(world1, 0, 17, 0);
+        locationNotInPolygonOutsideBorderXMax = new Location(world1, 42, 17, 0);
+        locationNotInPolygonOutsideBorderYMin = new Location(world1, 16, 15, 0);
+        locationNotInPolygonOutsideBorderYMax = new Location(world1, 16, 42, 0);
         locationNotInWorld = new Location(world2, 17, 19, 0);
 
         UUID uuid = UUID.randomUUID();
@@ -83,7 +89,21 @@ public class PolygonTest
     @Test
     public void polygon_equals_test_not_equal()
     {
-        assertFalse("These objects are not equal", regularPolygon.equals(new Polygon(UUID.randomUUID(), new LinkedHashSet<>())));
+        assertFalse("These objects are not equal",
+                regularPolygon.equals(new Polygon(UUID.randomUUID(), new LinkedHashSet<>())));
+    }
+
+    @Test
+    public void polygon_hashcode_equal()
+    {
+        assertEquals("These objects are equal (hashcode)", regularPolygon.hashCode(), testPolygon.hashCode());
+    }
+
+    @Test
+    public void polygon_hashcode_not_equal()
+    {
+        assertFalse("These objects are not equal (hashcode)",
+                regularPolygon.hashCode() == new Polygon(UUID.randomUUID(), new LinkedHashSet<>()).hashCode());
     }
 
     @Test
@@ -105,9 +125,24 @@ public class PolygonTest
     }
 
     @Test
-    public void polygon_in_region_invalid_outside_borders()
+    public void polygon_in_region_invalid_outside_borders_xmin()
     {
-        assertFalse("Should not be in polygon", regularPolygon.inRegion(locationNotInPolygonOutsideBorder, true));
+        assertFalse("Should not be in polygon", regularPolygon.inRegion(locationNotInPolygonOutsideBorderXMin, true));
+    }
+    @Test
+    public void polygon_in_region_invalid_outside_borders_xmax()
+    {
+        assertFalse("Should not be in polygon", regularPolygon.inRegion(locationNotInPolygonOutsideBorderXMax, true));
+    }
+    @Test
+    public void polygon_in_region_invalid_outside_borders_ymin()
+    {
+        assertFalse("Should not be in polygon", regularPolygon.inRegion(locationNotInPolygonOutsideBorderYMin, true));
+    }
+    @Test
+    public void polygon_in_region_invalid_outside_borders_ymax()
+    {
+        assertFalse("Should not be in polygon", regularPolygon.inRegion(locationNotInPolygonOutsideBorderYMax, true));
     }
 
     @Test

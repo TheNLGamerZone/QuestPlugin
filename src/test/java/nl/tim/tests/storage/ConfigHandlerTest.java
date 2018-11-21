@@ -1,9 +1,7 @@
 package nl.tim.tests.storage;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import nl.tim.questplugin.QuestPlugin;
 import nl.tim.questplugin.storage.ConfigHandler;
-import nl.tim.questplugin.storage.Storage;
 import nl.tim.questplugin.utils.Constants;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.junit.Assert;
@@ -15,6 +13,8 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -24,7 +24,8 @@ import java.util.logging.Logger;
 
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.powermock.api.mockito.PowerMockito.verifyStatic;
 import static org.powermock.api.mockito.PowerMockito.when;
 import static org.powermock.api.support.membermodification.MemberMatcher.method;
@@ -34,23 +35,30 @@ import static org.powermock.api.support.membermodification.MemberModifier.suppre
 @PrepareForTest(fullyQualifiedNames = "nl.tim.questplugin.*")
 public class ConfigHandlerTest
 {
-    private QuestPlugin mockPlugin;
     private FileConfiguration mockConfig;
     private ConfigHandler configHandler;
-    private Logger mockLogger;
 
     @Before
     public void setup()
     {
         // Mock plugin class
         PowerMockito.mockStatic(QuestPlugin.class);
-        mockPlugin = PowerMockito.mock(QuestPlugin.class);
+        QuestPlugin mockPlugin = PowerMockito.mock(QuestPlugin.class);
         mockConfig = PowerMockito.mock(FileConfiguration.class);
-        mockLogger = PowerMockito.mock(Logger.class);
+        Logger mockLogger = PowerMockito.mock(Logger.class);
 
-        //PowerMockito.doNothing().when(mockPlugin).saveResource(any(String.class), any(Boolean.class));
+        // Suppress these methods (just to be safe)
         suppress(method(QuestPlugin.class, "saveResource"));
-        suppress(method(QuestPlugin.class, "getDataFolder"));//when(mockPlugin.getDataFolder()).thenReturn(null);
+        suppress(method(QuestPlugin.class, "getDataFolder"));
+
+        // Setup config file responses
+        when(mockConfig.getString("test1")).thenReturn("result");
+        when(mockConfig.getString("test2")).thenReturn("true");
+        when(mockConfig.getString("test3")).thenReturn("42");
+        when(mockConfig.getString("test4")).thenReturn("4242");
+        when(mockConfig.getString("test5")).thenReturn("42.42");
+        when(mockConfig.getString("test6")).thenReturn(null);
+        when(mockConfig.getString("config_version")).thenReturn("MOCK-VERSION-42-101");
 
         // Setup logger
         when(QuestPlugin.getLog()).thenReturn(mockLogger);
@@ -59,11 +67,12 @@ public class ConfigHandlerTest
 
         // Setup fake config file
         when(mockPlugin.getConfig()).thenReturn(mockConfig);
-        when(mockConfig.isSet(any(String.class))).thenReturn(true);
+        when(mockConfig.isSet(Matchers.eq("valueNotSet"))).thenReturn(false);
+        when(mockConfig.isSet(AdditionalMatchers.not(Matchers.eq("valueNotSet")))).thenReturn(true);
 
         // Setup config handler
         configHandler = new ConfigHandler(mockPlugin);
-        //mockConfigHandler.init();
+
 
         // Create static mocks for updating files
         PowerMockito.mockStatic(Paths.class);
@@ -74,9 +83,7 @@ public class ConfigHandlerTest
     @Test
     public void getoption_string()
     {
-        when(mockConfig.getString("test")).thenReturn("result");
-
-        String result = configHandler.getOption(String.class, "test");
+        String result = configHandler.getOption(String.class, "test1");
 
         assertEquals("Result should be a string and of value 'result'", "result", result);
     }
@@ -84,9 +91,7 @@ public class ConfigHandlerTest
     @Test
     public void getoption_boolean()
     {
-        when(mockConfig.getString("test")).thenReturn("true");
-
-        boolean result = configHandler.getOption(Boolean.class, "test");
+        boolean result = configHandler.getOption(Boolean.class, "test2");
 
         assertTrue("Result should be a boolean and of value 'true'", result);
     }
@@ -94,9 +99,7 @@ public class ConfigHandlerTest
     @Test
     public void getoption_int()
     {
-        when(mockConfig.getString("test")).thenReturn("42");
-
-        int result = configHandler.getOption(Integer.class, "test");
+        int result = configHandler.getOption(Integer.class, "test3");
 
         assertEquals("Result should be a integer and of value '42'", 42, result);
     }
@@ -104,9 +107,7 @@ public class ConfigHandlerTest
     @Test
     public void getoption_long()
     {
-        when(mockConfig.getString("test")).thenReturn("4242");
-
-        long result = configHandler.getOption(Long.class, "test");
+        long result = configHandler.getOption(Long.class, "test4");
 
         assertEquals("Result should be a long and of value '4242'", 4242, result);
     }
@@ -114,9 +115,7 @@ public class ConfigHandlerTest
     @Test
     public void getoption_double()
     {
-        when(mockConfig.getString("test")).thenReturn("42.42");
-
-        double result = configHandler.getOption(Double.class, "test");
+        double result = configHandler.getOption(Double.class, "test5");
 
         Assert.assertEquals("Result should be a double and of value '42.42'", result, 42.42, 0.0002);
     }
@@ -124,50 +123,48 @@ public class ConfigHandlerTest
     @Test
     public void getoption_null()
     {
-        when(mockConfig.getString("test")).thenReturn(null);
+        String result = configHandler.getOption(String.class, "test6");
 
-        String result = configHandler.getOption(String.class, "test");
-
-        assertNull("Result should be a null", result);
+        assertNull("Result should be a null since the original value was also null", result);
     }
 
-    /* Test methods: updating configuration related */
+    @Test
+    public void getoption_not_set()
+    {
+        String result = configHandler.getOption(String.class, "valueNotSet");
+
+        assertNull("Result should be a null since the requested key did not exist in the file", result);
+    }
+
+    /* Testing methods: updating configuration related */
     @Test
     public void compareversion_up_to_date()
     {
-        when(mockConfig.getString("config_version")).thenReturn("MOCK-VERSION-42-101");
-
         assertTrue(configHandler.compareVersions("MOCK-VERSION-42-101"));
     }
 
     @Test
     public void compareversion_outdated()
     {
-        when(mockConfig.getString("config_version")).thenReturn("MOCK-VERSION-42-101");
-
         assertFalse(configHandler.compareVersions("MOCK-VERSION-42-102"));
     }
 
     @Test
     public void updateconfig_up_to_date()
     {
-        when(mockConfig.getString("config_version")).thenReturn("MOCK-VERSION-42-101");
-
         assertFalse("Config is up-to-date and shouldn't be updated!", configHandler.updateConfig("MOCK-VERSION-42-101"));
     }
 
     @Test
     public void updateconfig_outdated()
     {
-        // Mock config version
-        when(mockConfig.getString("config_version")).thenReturn("MOCK-VERSION-42-101");
-
         try
         {
             // Mocking old config file
             Set<String> mockKeys = new HashSet<>();
             List<String> expected = new ArrayList<>();
 
+            mockKeys.add("config_version");
             mockKeys.add("configOption1");
             mockKeys.add("configOption2");
             mockKeys.add("configOption3");
@@ -184,7 +181,6 @@ public class ConfigHandlerTest
             mockLines.add("configOption3: old_setting");
             mockLines.add("configOption4: new_setting");
 
-            //suppress(method(Paths.class, "get", anyString(), Matchers.<String>any()));//, String.class));
             when(Files.readAllLines(any(Path.class))).thenReturn(mockLines);
 
             // Run method
@@ -212,6 +208,47 @@ public class ConfigHandlerTest
         }
     }
 
+    /* Testing method: ConfigHandler#createFileIfNotExists */
+    @Test
+    public void create_file_exists()
+    {
+        // Mock file
+        File mockFile = PowerMockito.mock(File.class);
+        File parentFile = PowerMockito.mock(File.class);
+        when(mockFile.exists()).thenReturn(true);
+        when(mockFile.getParentFile()).thenReturn(parentFile);
+
+        // 'Create' it
+        ConfigHandler.createFileIfNotExists(mockFile);
+
+        // Check the mkdirs method was never called
+        verify(parentFile, times(0)).mkdirs();
+    }
+
+    @Test
+    public void create_file_not_exists()
+    {
+        // Mock file
+        File mockFile = PowerMockito.mock(File.class);
+        File parentFile = PowerMockito.mock(File.class);
+        when(mockFile.exists()).thenReturn(false);
+        when(mockFile.getParentFile()).thenReturn(parentFile);
+
+        // 'Create' it
+        ConfigHandler.createFileIfNotExists(mockFile);
+
+        try
+        {
+            // Check the createNewFile method was called once
+            verify(mockFile, times(1)).createNewFile();
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+            fail("Exception that should not happen");
+        }
+    }
+
+    // Making sure the config version is correct
     @Test
     public void compare_config_versions()
     {

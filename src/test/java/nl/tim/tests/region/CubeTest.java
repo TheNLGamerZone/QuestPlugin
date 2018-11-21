@@ -80,6 +80,20 @@ public class CubeTest
     }
 
     @Test
+    public void cube_hashcode_equal()
+    {
+        assertEquals("These objects are equal (hashcode)", regularCube.hashCode(), testCube.hashCode());
+    }
+
+    @Test
+    public void cube_hashcode_not_equal()
+    {
+        assertFalse("These objects are not equal (hashcode)",
+                regularCube.hashCode() ==
+                        new Cube(UUID.randomUUID(), new Location(null, 0, 0, 0), new Location(null, 0, 0, 1)).hashCode());
+    }
+
+    @Test
     public void cube_in_region_valid()
     {
         assertTrue("Should be in Cube", regularCube.inRegion(locationInCube, false));

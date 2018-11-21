@@ -56,56 +56,68 @@ public class SphereTest
     }
 
     @Test
-    public void cube_equals_test_equal()
+    public void sphere_equals_test_equal()
     {
         assertEquals("These objects are equal", regularSphere, testSphere);
     }
 
     @Test
-    public void cube_equals_test_not_instance_of()
+    public void sphere_equals_test_not_instance_of()
     {
         assertFalse("Sphere should check instance", regularSphere.equals(testObject));
     }
 
     @Test
-    public void cube_equals_test_equal_same_instance()
+    public void sphere_equals_test_equal_same_instance()
     {
         assertEquals("These objects are equal", regularSphere, regularSphere);
     }
 
     @Test
-    public void cube_equals_test_not_equal()
+    public void sphere_equals_test_not_equal()
     {
         assertFalse("These objects are not equal", regularSphere.equals(new Sphere(UUID.randomUUID(), new Location(null, 0 ,0 ,0), 1)));
     }
 
+    @Test
+    public void sphere_hashcode_equal()
+    {
+        assertEquals("These objects are equal (hashcode)", regularSphere.hashCode(), testSphere.hashCode());
+    }
 
     @Test
-    public void cube_in_region_valid()
+    public void sphere_hashcode_not_equal()
+    {
+        assertFalse("These objects are not equal (hashcode)",
+                regularSphere.hashCode() == new Sphere(UUID.randomUUID(), new Location(null, 0, 0, 0), 42).hashCode());
+    }
+
+    @Test
+    public void sphere_in_region_valid()
     {
         assertTrue("Should be in Sphere", regularSphere.inRegion(locationInSphere, false));
     }
 
     @Test
-    public void cube_in_region_invalid_height()
+    public void sphere_in_region_invalid_height()
     {
         assertFalse("Should not be in Sphere (z-axis)", regularSphere.inRegion(locationNotInSphere, false));
     }
 
     @Test
-    public void cube_in_region_valid_ignore_height()
+    public void sphere_in_region_valid_ignore_height()
     {
         assertTrue("Should be in Sphere", regularSphere.inRegion(locationInSphereIgnoreHeight, true));
     }
 
     @Test
-    public void cube_in_region_invalid_x_ignore_height()
+    public void sphere_in_region_invalid_x_ignore_height()
     {
         assertFalse("Should not be in Sphere (x-axis)", regularSphere.inRegion(locationNotInSphereIgnoreHeight, true));
     }
 
     @Test
-    public void cube_in_region_invalid_other_world()
+    public void sphere_in_region_invalid_other_world()
     {
         assertFalse("Should not be in Sphere (other world)", regularSphere.inRegion(locationInOtherWorld, false));
     }

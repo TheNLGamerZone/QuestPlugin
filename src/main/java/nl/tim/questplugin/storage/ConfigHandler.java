@@ -38,10 +38,16 @@ public class ConfigHandler
 
     public <T> T getOption(Class<T> type, String option)
     {
+        // Check if the value was set
+        if (!(this.questPlugin.getConfig().isSet(option)))
+        {
+            return null;
+        }
+
         String result = this.questPlugin.getConfig().getString(option);
 
         // Check if it was a valid option
-        if (result == null || !(this.questPlugin.getConfig().isSet(option)))
+        if (result == null)
         {
             return null;
         }
@@ -176,9 +182,9 @@ public class ConfigHandler
     }
 
     /**
-     * Returns all old settings from the given keys
-     * @param keys
-     * @return
+     * Returns all old settings from the given keys.
+     * @param keys keys to search for
+     * @return All old settings from the given keys.
      */
     private List<Storage.DataPair<String>> getDataFromOldConfig(Set<String> keys)
     {
@@ -214,6 +220,7 @@ public class ConfigHandler
         if (!file.exists())
         {
             file.getParentFile().mkdirs();
+
             try
             {
                 QuestPlugin.getLog().info("Creating file " + file.getName());

@@ -140,6 +140,12 @@ public class FileStorage implements Storage
             // Loop through all data
             for (DataPair dataPair : dataPairs)
             {
+                // Check if it's null
+                if (dataPair == null)
+                {
+                    continue;
+                }
+
                 // Create key and data pair
                 String key = dataPair.getKey();
                 Object data = dataPair.getData();

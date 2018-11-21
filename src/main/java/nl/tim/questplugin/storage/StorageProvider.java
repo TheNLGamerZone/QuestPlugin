@@ -9,15 +9,18 @@ public class StorageProvider
 {
     public enum StorageType
     {
-        FILE_BASED, SQL_BASED, MONGO_BASED;
+        FILE_BASED, SQL_BASED, MONGO_BASED,
+        DEFAULT;
 
         public static StorageType getType(String string)
         {
+            // If the string was null return a default type
             if (string == null)
             {
-                return null;
+                return DEFAULT;
             }
 
+            // Otherwise just return the valid type if one matches
             for (StorageType storageType : StorageType.values())
             {
                 if (string.equals(storageType.name()))
@@ -26,7 +29,7 @@ public class StorageProvider
                 }
             }
 
-            return null;
+            return DEFAULT;
         }
     }
 
