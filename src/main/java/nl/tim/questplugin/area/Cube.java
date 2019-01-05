@@ -3,6 +3,8 @@ package nl.tim.questplugin.area;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.bukkit.Location;
 
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -48,6 +50,16 @@ public class Cube extends Region
         return (n - a) * (n - b) <= 0;
     }
 
+    public void setFirstLocation(Location location)
+    {
+        this.location1 = location;
+    }
+
+    public void setSecondLocation(Location location)
+    {
+        this.location2 = location;
+    }
+
     @Override
     public boolean equals(Object object)
     {
@@ -74,5 +86,16 @@ public class Cube extends Region
     public int hashCode()
     {
         return Objects.hash(this.getUUID(), this.location1, this.location2);
+    }
+
+    @Override
+    public LinkedHashSet<Location> getLocations()
+    {
+        LinkedHashSet<Location> result = new LinkedHashSet<>();
+
+        result.add(this.location1);
+        result.add(this.location2);
+
+        return result;
     }
 }

@@ -4,7 +4,6 @@ import nl.tim.questplugin.QuestPlugin;
 import nl.tim.questplugin.storage.ConfigHandler;
 import nl.tim.questplugin.storage.Storage;
 import nl.tim.questplugin.storage.workers.FileStorage;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,10 +15,11 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.logging.Logger;
 
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.atLeastOnce;
@@ -89,12 +89,11 @@ public class FileStorageTest
 
             // Call save method
             UUID uuid = UUID.randomUUID();
-            Storage.DataPair[] dataPairs = new Storage.DataPair[]{
-                    new Storage.DataPair("key1", "data1"),
-                    new Storage.DataPair("key2", "data2"),
-                    new Storage.DataPair("key3", "data3"),
-                    null // To prevent this test from breaking, keep null as the last value
-            };
+            List<Storage.DataPair> dataPairs = new ArrayList<>();
+            dataPairs.add(new Storage.DataPair<>("key1", "data1"));
+            dataPairs.add(new Storage.DataPair<>("key2", "data2"));
+            dataPairs.add(new Storage.DataPair<>("key3", "data3"));
+            dataPairs.add(null);
 
             fileStorage.save(uuid, Storage.DataType.PLAYER, dataPairs);
 
@@ -110,7 +109,7 @@ public class FileStorageTest
 
             // First check if the amount of passed args is as we expected
             // -1 because we do not expect the first null value to be passed
-            if (keys.getAllValues().size() != dataPairs.length - 1 ||
+            if (keys.getAllValues().size() != dataPairs.size() - 1 ||
                     keys.getAllValues().size() != data.getAllValues().size())
             {
                 fail("Not all arguments were passed!");
@@ -119,12 +118,12 @@ public class FileStorageTest
 
             // Loop through all values passed to the set() and verify them
             // Exclude the first value of the array, because that's null
-            for (int i = 0; i < dataPairs.length - 1; i++)
+            for (int i = 0; i < dataPairs.size() - 1; i++)
             {
                 String uuidKey = keys.getAllValues().get(i).split("\\.")[0];
                 String givenKey = keys.getAllValues().get(i);
                 String givenData = data.getAllValues().get(i);
-                Storage.DataPair dataPair = dataPairs[i];
+                Storage.DataPair dataPair = dataPairs.get(i);
 
                 if (!givenKey.equals(uuidKey + "." + dataPair.getKey()) || !givenData.equals(dataPair.getData()))
                 {

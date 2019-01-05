@@ -5,6 +5,7 @@ import nl.tim.questplugin.QuestPlugin;
 import nl.tim.questplugin.storage.Storage;
 
 import javax.inject.Singleton;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -30,15 +31,18 @@ public class SQLStorage implements Storage
     @Override
     public void save(UUID uuid, DataType dataType, DataPair dataPair)
     {
-        this.save(uuid, dataType, new DataPair[]{dataPair});
+        ArrayList<DataPair> dataPairs = new ArrayList<>();
+
+        dataPairs.add(dataPair);
+        this.save(uuid, dataType, dataPairs);
     }
 
     @Override
-    public void save(UUID uuid, DataType dataType, DataPair[] dataPairs)
+    public void save(UUID uuid, DataType dataType, List<DataPair> dataPairs)
     {
         System.out.println("SQL:" + uuid);
         System.out.println("SQL:" + dataType);
-        System.out.println("SQL:" + Arrays.toString(dataPairs));
+        System.out.println("SQL:" + dataPairs);
     }
 
     @Override

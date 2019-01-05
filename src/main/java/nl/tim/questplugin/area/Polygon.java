@@ -5,6 +5,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.bukkit.Location;
 
 import java.awt.geom.Line2D;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.UUID;
@@ -82,6 +83,24 @@ public class Polygon extends Region
         }
 
         this.calcBorders();
+    }
+
+    public boolean updateLocation(Location oldLocation, Location newLocation)
+    {
+        for (Location location : this.locationSet)
+        {
+            if (location.equals(oldLocation))
+            {
+                location.setWorld(newLocation.getWorld());
+                location.setX(newLocation.getX());
+                location.setY(newLocation.getY());
+                location.setZ(newLocation.getZ());
+
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void calcBorders()
@@ -189,5 +208,11 @@ public class Polygon extends Region
     public int hashCode()
     {
         return Objects.hash(this.getUUID(), this.locationSet);
+    }
+
+    @Override
+    public LinkedHashSet<Location> getLocations()
+    {
+        return this.locationSet;
     }
 }

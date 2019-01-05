@@ -31,8 +31,13 @@ public class Area
         return false;
     }
 
-    public void save()
+    public UUID getUUID()
     {
+        return this.uuid;
+    }
 
+    public Set<Region> getRegions()
+    {
+        return this.regions;
     }
 }

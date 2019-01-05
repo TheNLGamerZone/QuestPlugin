@@ -3,6 +3,7 @@ package nl.tim.questplugin.area;
 import org.bukkit.Location;
 import org.bukkit.World;
 
+import java.util.LinkedHashSet;
 import java.util.UUID;
 
 public abstract class Region
@@ -51,9 +52,16 @@ public abstract class Region
         return this.regionFileIdentifier;
     }
 
+    public boolean heightIgnored()
+    {
+        return this.ignoreHeight;
+    }
+
     public abstract boolean inRegion(Location location, boolean ignoreHeight);
 
     public abstract boolean equals(Object object);
 
     public abstract int hashCode();
+
+    public abstract LinkedHashSet<Location> getLocations();
 }

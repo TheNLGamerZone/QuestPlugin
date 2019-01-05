@@ -29,7 +29,7 @@ public class MongoStorage implements Storage
     }
 
     @Override
-    public void save(UUID uuid, DataType dataType, DataPair[] dataPairs) {
+    public void save(UUID uuid, DataType dataType, List<DataPair> dataPairs) {
 
     }
 

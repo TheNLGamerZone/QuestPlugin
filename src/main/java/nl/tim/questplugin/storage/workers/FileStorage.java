@@ -110,12 +110,14 @@ public class FileStorage implements Storage
     @Override
     public void save(UUID uuid, DataType dataType, DataPair dataPair)
     {
-        // Just create a array with the single value and pass on
-        this.save(uuid, dataType, new DataPair[]{dataPair});
+        ArrayList<DataPair> dataPairs = new ArrayList<>();
+
+        dataPairs.add(dataPair);
+        this.save(uuid, dataType, dataPairs);
     }
 
     @Override
-    public void save(UUID uuid, DataType dataType, DataPair[] dataPairs)
+    public void save(UUID uuid, DataType dataType, List<DataPair> dataPairs)
     {
         /*
         All data will be saved in the appropriate file (indicated by DataType.getFilePath()) in the following format:
@@ -146,12 +148,8 @@ public class FileStorage implements Storage
                     continue;
                 }
 
-                // Create key and data pair
-                String key = dataPair.getKey();
-                Object data = dataPair.getData();
-
                 // Save in file
-                fileConfiguration.set(uid + "." + key, data);
+                fileConfiguration.set(uid + "." + dataPair.getKey(), dataPair.getData());
             }
 
             // Save file
@@ -160,6 +158,13 @@ public class FileStorage implements Storage
         {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void remove(UUID uuid, DataType dataType, String key)
+    {
+        // We can delete k/v pairs by just updating the value to null
+        this.save(uuid, dataType, new DataPair<String>(key, null));
     }
 
     @Override
@@ -183,7 +188,6 @@ public class FileStorage implements Storage
     {
         FileConfiguration fileConfiguration = this.getFileConfig(dataType);
         List<DataPair> dataPairs = new ArrayList<>();
-        List<UUID> uuidList = this.getSavedObjectsUID(dataType);
 
         // Check if the file config could be loaded
         if (fileConfiguration == null)
@@ -191,21 +195,17 @@ public class FileStorage implements Storage
             return null;
         }
 
-        // Loop through all UUIDs
-        for (UUID uid : uuidList)
+        String section = uuid.toString();
+        Set<String> allKeys = this.getDeepKeys(fileConfiguration, section);
+
+        // Loop through all keys
+        for (String key : allKeys)
         {
-            String section = uid.toString();
-            Set<String> allKeys = this.getDeepKeys(fileConfiguration, section);
+            // Create data pairs and add to result
+            String data = fileConfiguration.getString(uuid.toString() + "." + key);
+            DataPair dataPair = new DataPair<>(key, data);
 
-            // Loop through all keys
-            for (String key : allKeys)
-            {
-                // Create data pairs and add to result
-                String data = fileConfiguration.getString(section + "." + key);
-                DataPair dataPair = new DataPair<>(key, data);
-
-                dataPairs.add(dataPair);
-            }
+            dataPairs.add(dataPair);
         }
 
         return dataPairs;

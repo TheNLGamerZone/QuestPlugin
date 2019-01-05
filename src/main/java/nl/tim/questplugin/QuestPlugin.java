@@ -2,6 +2,8 @@ package nl.tim.questplugin;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
+import nl.tim.questplugin.quest.ProgressHandler;
+import nl.tim.questplugin.quest.TaskHandler;
 import nl.tim.questplugin.storage.ConfigHandler;
 import nl.tim.questplugin.storage.Storage;
 import nl.tim.questplugin.storage.StorageProvider;
@@ -10,7 +12,6 @@ import nl.tim.questplugin.storage.image.builders.PlayerImageBuilder;
 import nl.tim.questplugin.storage.image.builders.QuestImageBuilder;
 import nl.tim.questplugin.storage.image.builders.RegionImageBuilder;
 import nl.tim.questplugin.utils.Constants;
-import nl.tim.questplugin.utils.LocationSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -33,6 +34,9 @@ public class QuestPlugin extends JavaPlugin
     @Inject private QuestImageBuilder questImageBuilder;
     @Inject private PlayerImageBuilder playerImageBuilder;
     @Inject private RegionImageBuilder regionImageBuilder;
+
+    @Inject private TaskHandler taskHandler;
+    @Inject private ProgressHandler progressHandler;
 
     @Override
     public void onEnable() {
@@ -70,8 +74,6 @@ public class QuestPlugin extends JavaPlugin
         logger.info("Loading handlers");
 
         this.storage = this.storageProvider.getStorage(storageType);
-        LocationSerializer.configFolder = getDataFolder();
-
         this.storageLoaded = this.storage.init();
 
         // Check if storage loaded properly, otherwise disable plugin
@@ -84,7 +86,7 @@ public class QuestPlugin extends JavaPlugin
         }
 
         // Continue loading if storage was properly initialized
-        this.areaImageBuilder.save(null);
+
 
         // Done with loading
         logger.info("QuestPlugin is enabled!");
@@ -121,5 +123,20 @@ public class QuestPlugin extends JavaPlugin
     public static Logger getLog()
     {
         return logger;
+    }
+
+    public TaskHandler getTaskHandler()
+    {
+        return this.taskHandler;
+    }
+
+    public AreaImageBuilder getAreaImageBuilder()
+    {
+        return this.areaImageBuilder;
+    }
+
+    public RegionImageBuilder getRegionImageBuilder()
+    {
+        return this.regionImageBuilder;
     }
 }

@@ -13,11 +13,13 @@ import java.util.UUID;
 @Singleton
 public class PlayerImageBuilder implements ImageBuilder<QPlayer>
 {
+    private QuestPlugin questPlugin;
     private Storage storage;
 
     @Inject
-    public PlayerImageBuilder(StorageProvider storageProvider)
+    public PlayerImageBuilder(QuestPlugin questPlugin, StorageProvider storageProvider)
     {
+        this.questPlugin = questPlugin;
         this.storage = storageProvider.getStorage(QuestPlugin.storageType);
     }
 

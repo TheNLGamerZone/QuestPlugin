@@ -3,6 +3,7 @@ package nl.tim.questplugin.area;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.bukkit.Location;
 
+import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -22,6 +23,21 @@ public class Sphere extends Region
 
         this.center = center;
         this.radius = radius;
+    }
+
+    public double getRadius()
+    {
+        return this.radius;
+    }
+
+    public void setRadius(double radius)
+    {
+        this.radius = radius;
+    }
+
+    public void setCenter(Location location)
+    {
+        this.center = location;
     }
 
     @Override
@@ -70,5 +86,15 @@ public class Sphere extends Region
     public int hashCode()
     {
         return Objects.hash(this.getUUID(), this.center, this.radius);
+    }
+
+    @Override
+    public LinkedHashSet<Location> getLocations()
+    {
+        LinkedHashSet<Location> result = new LinkedHashSet<>();
+
+        result.add(this.center);
+
+        return result;
     }
 }

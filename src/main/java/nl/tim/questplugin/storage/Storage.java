@@ -55,6 +55,16 @@ public interface Storage
             this.data = data;
         }
 
+        public void prependKey(String key)
+        {
+            this.key = key + this.key;
+        }
+
+        public void appendKey(String key)
+        {
+            this.key = this.key + key;
+        }
+
         public String getKey()
         {
             return this.key;
@@ -109,31 +119,50 @@ public interface Storage
     boolean init();
 
     /**
-     * Save one DataPair
-     * Can be used to save one specific piece of data
+     * Save one the given {@link DataPair}. Can be used to save one specific piece of data.
+     * @param uuid {@link UUID} of the object
+     * @param dataType {@link DataType} of object
+     * @param dataPair {@link DataPair} to save
      */
     void save(UUID uuid, DataType dataType, DataPair dataPair);
 
     /**
-     * Save multiple DataPairs
-     * Can be used to save all data of an object with given UUID
+     * Save multiple {@link DataPair}s.
+     * @param uuid {@link UUID} of object
+     * @param dataType {@link DataType} of the object to save
+     * @param dataPairs {@link DataPair}s to save
      */
-    void save(UUID uuid, DataType dataType, DataPair[] dataPairs);
+    void save(UUID uuid, DataType dataType, List<DataPair> dataPairs);
 
     /**
-     * Load one piece of saved data
+     * Removes data with given key
+     * @param uuid {@link UUID} of object
+     * @param dataType {@link DataType} of object
+     * @param key key to search for
+     */
+    void remove(UUID uuid, DataType dataType, String key);
+
+    /**
+     * Load one piece of saved data with the given {@link UUID} and key.
+     * @param uuid {@link UUID} of the object to search for
+     * @param dataType {@link DataType} of required data
+     * @param key key to of the required data
+     * @return {@link DataPair} containing data or null if nothing was found.
      */
     DataPair load(UUID uuid, DataType dataType, String key);
 
     /**
-     * Load all data of a given object with given UUID
-     * This function will bloat very quickly with large player bases
-     * Call this function with argument {@link DataType#PLAYER} at your own risk!
+     * Loads all data of a given object with given UUID.
+     * @param uuid {@link UUID} of the object to load
+     * @param dataType {@link DataType} of the objet
+     * @return {@link List<DataPair>} containing all data of the object (will be empty when nothing was found).
      */
     List<DataPair> load(UUID uuid, DataType dataType);
 
     /**
-     * Can be used to get all uuids of objects saved of the given DataType
+     * Returns all UUID saved of the given {@link DataType}.
+     * @param dataType {@link DataType} to search for
+     * @return {@link List<UUID>} containing all found UUIDs of the given {@link DataType}.
      */
     List<UUID> getSavedObjectsUID(DataType dataType);
 }

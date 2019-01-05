@@ -13,11 +13,13 @@ import java.util.UUID;
 @Singleton
 public class QuestImageBuilder implements ImageBuilder<Quest>
 {
+    private QuestPlugin questPlugin;
     private Storage storage;
 
     @Inject
-    public QuestImageBuilder(StorageProvider storageProvider)
+    public QuestImageBuilder(QuestPlugin questPlugin, StorageProvider storageProvider)
     {
+        this.questPlugin = questPlugin;
         this.storage = storageProvider.getStorage(QuestPlugin.storageType);
     }
 
