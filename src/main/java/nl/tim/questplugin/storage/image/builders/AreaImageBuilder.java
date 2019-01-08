@@ -2,7 +2,6 @@ package nl.tim.questplugin.storage.image.builders;
 
 import nl.tim.questplugin.QuestPlugin;
 import nl.tim.questplugin.area.Area;
-import nl.tim.questplugin.area.Cube;
 import nl.tim.questplugin.area.Region;
 import nl.tim.questplugin.storage.Storage;
 import nl.tim.questplugin.storage.StorageProvider;

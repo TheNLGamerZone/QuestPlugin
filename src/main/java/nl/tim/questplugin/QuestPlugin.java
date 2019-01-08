@@ -2,15 +2,13 @@ package nl.tim.questplugin;
 
 import com.google.inject.Inject;
 import com.google.inject.Injector;
-import nl.tim.questplugin.quest.ProgressHandler;
+import nl.tim.questplugin.player.PlayerHandler;
+import nl.tim.questplugin.quest.QuestHandler;
 import nl.tim.questplugin.quest.TaskHandler;
 import nl.tim.questplugin.storage.ConfigHandler;
 import nl.tim.questplugin.storage.Storage;
 import nl.tim.questplugin.storage.StorageProvider;
-import nl.tim.questplugin.storage.image.builders.AreaImageBuilder;
-import nl.tim.questplugin.storage.image.builders.PlayerImageBuilder;
-import nl.tim.questplugin.storage.image.builders.QuestImageBuilder;
-import nl.tim.questplugin.storage.image.builders.RegionImageBuilder;
+import nl.tim.questplugin.storage.image.builders.*;
 import nl.tim.questplugin.utils.Constants;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -34,9 +32,12 @@ public class QuestPlugin extends JavaPlugin
     @Inject private QuestImageBuilder questImageBuilder;
     @Inject private PlayerImageBuilder playerImageBuilder;
     @Inject private RegionImageBuilder regionImageBuilder;
+    @Inject private StageImageBuilder stageImageBuilder;
+    @Inject private StageConfigurationImageBuilder stageConfigurationImageBuilder;
 
     @Inject private TaskHandler taskHandler;
-    @Inject private ProgressHandler progressHandler;
+    @Inject private QuestHandler questHandler;
+    @Inject private PlayerHandler playerHandler;
 
     @Override
     public void onEnable() {
@@ -128,6 +129,16 @@ public class QuestPlugin extends JavaPlugin
     public TaskHandler getTaskHandler()
     {
         return this.taskHandler;
+    }
+
+    public QuestHandler getQuestHandler()
+    {
+        return this.questHandler;
+    }
+
+    public PlayerHandler getPlayerHandler()
+    {
+        return this.playerHandler;
     }
 
     public AreaImageBuilder getAreaImageBuilder()

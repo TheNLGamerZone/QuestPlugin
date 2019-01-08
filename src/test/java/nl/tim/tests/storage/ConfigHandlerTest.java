@@ -117,7 +117,7 @@ public class ConfigHandlerTest
     {
         double result = configHandler.getOption(Double.class, "test5");
 
-        Assert.assertEquals("Result should be a double and of value '42.42'", result, 42.42, 0.0002);
+        assertEquals("Result should be a double and of value '42.42'", result, 42.42, 0.0002);
     }
 
     @Test
@@ -190,7 +190,7 @@ public class ConfigHandlerTest
             final ArgumentCaptor<ArrayList> captor = ArgumentCaptor.forClass(ArrayList.class);
 
             verifyStatic();
-            Files.write(Matchers.any(Path.class), captor.capture());
+            Files.write(any(Path.class), captor.capture());
 
             // Creating expected 'file'
             expected.add("# comment");

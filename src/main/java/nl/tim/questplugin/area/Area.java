@@ -1,7 +1,8 @@
 package nl.tim.questplugin.area;
 
-import org.bukkit.entity.Player;
+import nl.tim.questplugin.player.QPlayer;
 
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -16,13 +17,13 @@ public class Area
         this.regions = regions;
     }
 
-    public boolean inArea(Player player)
+    public boolean inArea(QPlayer player)
     {
         // Loop through all regions linked to this area
         for (Region region : regions)
         {
             // Check if the player is in this regio
-            if (region.inRegion(player.getLocation()))
+            if (region.inRegion(player.getLastLocation()))
             {
                 return true;
             }
@@ -39,5 +40,11 @@ public class Area
     public Set<Region> getRegions()
     {
         return this.regions;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(this.uuid, this.regions);
     }
 }

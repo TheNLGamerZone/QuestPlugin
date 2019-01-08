@@ -31,7 +31,6 @@ import static org.powermock.api.mockito.PowerMockito.when;
 @PrepareForTest(fullyQualifiedNames = "nl.tim.questplugin.*")
 public class FileStorageTest
 {
-    private final int NUMBER_OF_FILES = 4;
     private FileStorage fileStorage;
 
     @Before
@@ -62,6 +61,8 @@ public class FileStorageTest
         fileStorage.init();
 
         // Check if all files were verified
+        int NUMBER_OF_FILES = 4;
+
         PowerMockito.verifyStatic(times(NUMBER_OF_FILES));
         ConfigHandler.createFileIfNotExists(any(File.class));
     }

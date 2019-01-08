@@ -4,21 +4,30 @@ import nl.tim.questplugin.quest.Task;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockBreakEvent;
 
-import java.util.UUID;
+import java.util.Set;
 
 public class DummyTask extends Task
 {
     public DummyTask()
     {
-        super(UUID.fromString("d035018a-895d-40e4-9165-0a01c3684797"),
-                "dummytask",
-                "Dummy Task",
-                5);
+        super("dummytask","Dummy Task");
     }
 
     @EventHandler
     public void onBlockBreakEvent(BlockBreakEvent event)
     {
-        incrementScore(null);
+        //
+    }
+
+    @Override
+    public Set<TaskOption> getRequiredConfiguration()
+    {
+        return null;
+    }
+
+    @Override
+    public TaskOption getFinishOption()
+    {
+        return null;
     }
 }

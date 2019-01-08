@@ -34,6 +34,12 @@ public class MongoStorage implements Storage
     }
 
     @Override
+    public void remove(UUID uuid, DataType dataType, String key)
+    {
+
+    }
+
+    @Override
     public DataPair load(UUID uuid, DataType dataType, String key) {
         return null;
     }

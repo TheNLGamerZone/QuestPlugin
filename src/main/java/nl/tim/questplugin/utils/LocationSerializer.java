@@ -1,18 +1,11 @@
 package nl.tim.questplugin.utils;
 
 import nl.tim.questplugin.QuestPlugin;
-import nl.tim.questplugin.storage.ConfigHandler;
 import nl.tim.questplugin.storage.Storage;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.configuration.InvalidConfigurationException;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 
 import javax.inject.Singleton;
-import javax.xml.crypto.Data;
-import java.io.File;
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.UUID;

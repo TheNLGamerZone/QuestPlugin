@@ -6,7 +6,6 @@ import nl.tim.questplugin.storage.Storage;
 
 import javax.inject.Singleton;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -43,6 +42,12 @@ public class SQLStorage implements Storage
         System.out.println("SQL:" + uuid);
         System.out.println("SQL:" + dataType);
         System.out.println("SQL:" + dataPairs);
+    }
+
+    @Override
+    public void remove(UUID uuid, DataType dataType, String key)
+    {
+
     }
 
     @Override

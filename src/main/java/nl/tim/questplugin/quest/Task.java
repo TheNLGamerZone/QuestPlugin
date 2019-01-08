@@ -1,38 +1,22 @@
 package nl.tim.questplugin.quest;
 
-import nl.tim.questplugin.QuestPlugin;
-import nl.tim.questplugin.player.QPlayer;
+import nl.tim.questplugin.quest.tasks.TaskOption;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.bukkit.event.Listener;
 
 import java.util.Objects;
-import java.util.UUID;
+import java.util.Set;
 
 public abstract class Task implements Listener
 {
-    private UUID uuid;
-    private String name;
+    private String identifier;
     private String displayName;
-    private int requiredPoints;
     private TaskHandler taskHandler;
 
-    public Task(UUID uuid, String name, String displayName, int requiredPoints)
+    public Task(String identifier, String displayName)
     {
-        this.uuid = uuid;
-        this.name = name;
+        this.identifier = identifier;
         this.displayName = displayName;
-        this.requiredPoints = requiredPoints;
-    }
-
-    public void incrementScore(QPlayer player)
-    {
-        this.addPoints(player, 1);
-    }
-
-    public void addPoints(QPlayer player, int amount)
-    {
-        //TODO: Implement + remove debug
-        QuestPlugin.getLog().severe("Incremented score by " + amount);
     }
 
     protected void register(TaskHandler taskHandler)
@@ -40,30 +24,38 @@ public abstract class Task implements Listener
         this.taskHandler = taskHandler;
     }
 
-    public int getRequiredPoints()
-    {
-        return this.requiredPoints;
-    }
-
     public String getDisplayName()
     {
         return this.displayName;
     }
 
-    public String getName()
+    public String getIdentifier()
     {
-        return this.name;
+        return this.identifier;
     }
 
-    public UUID getUUID()
-    {
-        return this.uuid;
-    }
+    /**
+     * Returns a {@link Set<TaskOption>} containing all configuration options that should be set in order to
+     * make the task work as intended. This way tasks can be reconfigured to behave as the plugin configurer intended.
+     * @return A {@link Set<TaskOption>} containing all configuration options for this task.
+     */
+    public abstract Set<TaskOption> getRequiredConfiguration();
+
+    /**
+     * Returns a {@link TaskOption} which will be the one the decides when a task is completed. The {@link TaskHandler}
+     * will compare the value configured by the given {@link TaskOption} to the amount of progress a player has made.
+     * The option returned should be in the set returned by {@link #getRequiredConfiguration()}, otherwise the task will
+     * be marked as broken. This can also only be a {@link TaskOption} that accepts integers, for obvious reasons.
+     * Sidenote: In case none of the task options fulfill your needs, {@link TaskOption#WILDCARD} can be used as a temporary
+     * placeholder. Create an issue or PR on github to request your desired task option.
+     * @return A {@link TaskOption} that 'decides' when a task is finished.
+     */
+    public abstract TaskOption getFinishOption();
 
     @Override
     public int hashCode()
     {
-        return Objects.hash(this.uuid, this.name, this.displayName, this.requiredPoints);
+        return Objects.hash(this.identifier, this.displayName);
     }
 
     @Override
@@ -74,7 +66,7 @@ public abstract class Task implements Listener
             return true;
         }
 
-        if (!(object instanceof Task))
+        if (object.getClass() != this.getClass())
         {
             return false;
         }
@@ -82,10 +74,9 @@ public abstract class Task implements Listener
         Task task = (Task) object;
 
         return new EqualsBuilder()
-                .append(this.uuid, task.getUUID())
-                .append(this.name, task.getName())
+                .append(this.getRequiredConfiguration(), task.getRequiredConfiguration())
+                .append(this.identifier, task.getIdentifier())
                 .append(this.displayName, task.getDisplayName())
-                .append(this.requiredPoints, task.getRequiredPoints())
                 .isEquals();
     }
 }
