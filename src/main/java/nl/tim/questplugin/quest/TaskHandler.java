@@ -9,6 +9,7 @@ import nl.tim.questplugin.quest.wrappers.TaskWrapper;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 @Singleton
 public class TaskHandler
@@ -42,7 +43,7 @@ public class TaskHandler
         {
             this.questPlugin.getServer().getPluginManager().registerEvents(task, this.questPlugin);
             this.tasks.add(task);
-            task.register(this);
+            task.register(this, this.questPlugin.getQuestHandler(), this.questPlugin.getPlayerHandler());
         }
     }
 
@@ -87,5 +88,18 @@ public class TaskHandler
     public Set<TaskWrapper> getTaskWrappers()
     {
         return this.taskWrappers;
+    }
+
+    public TaskWrapper getTaskWrapper(UUID uuid)
+    {
+        for (TaskWrapper wrapper : this.taskWrappers)
+        {
+            if (wrapper.getUUID().equals(uuid))
+            {
+                return wrapper;
+            }
+        }
+
+        return null;
     }
 }

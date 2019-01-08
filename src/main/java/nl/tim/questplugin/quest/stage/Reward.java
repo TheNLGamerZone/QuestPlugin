@@ -1,6 +1,5 @@
 package nl.tim.questplugin.quest.stage;
 
-import nl.tim.questplugin.quest.Task;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.bukkit.entity.Player;
 

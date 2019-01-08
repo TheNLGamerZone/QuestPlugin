@@ -1,17 +1,25 @@
 package nl.tim.questplugin.quest;
 
+import nl.tim.questplugin.player.PlayerHandler;
+import nl.tim.questplugin.player.QPlayer;
 import nl.tim.questplugin.quest.tasks.TaskOption;
-import org.apache.commons.lang.builder.EqualsBuilder;
+import nl.tim.questplugin.quest.wrappers.TaskWrapper;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 
-import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public abstract class Task implements Listener
 {
     private String identifier;
     private String displayName;
+
     private TaskHandler taskHandler;
+    private QuestHandler questHandler;
+    private PlayerHandler playerHandler;
 
     public Task(String identifier, String displayName)
     {
@@ -19,9 +27,11 @@ public abstract class Task implements Listener
         this.displayName = displayName;
     }
 
-    protected void register(TaskHandler taskHandler)
+    protected void register(TaskHandler taskHandler, QuestHandler questHandler, PlayerHandler playerHandler)
     {
         this.taskHandler = taskHandler;
+        this.questHandler = questHandler;
+        this.playerHandler = playerHandler;
     }
 
     public String getDisplayName()
@@ -32,6 +42,38 @@ public abstract class Task implements Listener
     public String getIdentifier()
     {
         return this.identifier;
+    }
+
+    public QPlayer getPlayer(Player player)
+    {
+        return this.playerHandler.getPlayer(player);
+    }
+
+    protected Set<Quest> getQuestsForPlayer(Player player)
+    {
+        QPlayer qPlayer = this.getPlayer(player);
+
+        return qPlayer.getProgressWrappers()
+                .stream()
+                .map(pw -> this.questHandler.getQuest(pw.getQuestUUID()))
+                .collect(Collectors.toSet());
+    }
+
+    protected Set<TaskWrapper> getTasksForPlayer(Player player, Quest quest)
+    {
+        QPlayer qPlayer = this.getPlayer(player);
+
+        return qPlayer.getProgressWrappers()
+                .stream()
+                .filter(pw -> pw.getQuestUUID().equals(quest.getUUID()))
+                .map(pw -> this.taskHandler.getTaskWrapper(pw.getTaskUUID()))
+                .filter(tw -> tw.getTask().getIdentifier().equals(this.identifier))
+                .collect(Collectors.toSet());
+    }
+
+    protected Object getTaskOption(TaskWrapper taskWrapper, TaskOption taskOption)
+    {
+        return taskWrapper.getTaskConfiguration().get(taskOption);
     }
 
     /**
@@ -53,12 +95,6 @@ public abstract class Task implements Listener
     public abstract TaskOption getFinishOption();
 
     @Override
-    public int hashCode()
-    {
-        return Objects.hash(this.identifier, this.displayName);
-    }
-
-    @Override
     public boolean equals(Object object)
     {
         if (this == object)
@@ -66,7 +102,7 @@ public abstract class Task implements Listener
             return true;
         }
 
-        if (object.getClass() != this.getClass())
+        if (object == null || getClass() != object.getClass())
         {
             return false;
         }
@@ -74,9 +110,23 @@ public abstract class Task implements Listener
         Task task = (Task) object;
 
         return new EqualsBuilder()
-                .append(this.getRequiredConfiguration(), task.getRequiredConfiguration())
-                .append(this.identifier, task.getIdentifier())
-                .append(this.displayName, task.getDisplayName())
+                .append(identifier, task.identifier)
+                .append(displayName, task.displayName)
+                .append(taskHandler, task.taskHandler)
+                .append(questHandler, task.questHandler)
+                .append(playerHandler, task.playerHandler)
                 .isEquals();
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return new HashCodeBuilder(17, 37)
+                .append(identifier)
+                .append(displayName)
+                .append(taskHandler)
+                .append(questHandler)
+                .append(playerHandler)
+                .toHashCode();
     }
 }

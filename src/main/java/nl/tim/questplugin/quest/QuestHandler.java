@@ -8,6 +8,7 @@ import nl.tim.questplugin.quest.stage.Stage;
 import nl.tim.questplugin.quest.stage.rewards.StageLinkReward;
 import nl.tim.questplugin.quest.wrappers.RewardWrapper;
 import nl.tim.questplugin.quest.wrappers.TaskWrapper;
+
 import org.bukkit.entity.Player;
 
 import java.util.*;
@@ -38,6 +39,11 @@ public class QuestHandler
     public void registerStage(Stage stage)
     {
         this.stages.add(stage);
+    }
+
+    public void registerQuestTrigger(Trigger trigger)
+    {
+        trigger.register(this, this.questPlugin.getPlayerHandler());
     }
 
     public Set<Quest> getQuests()

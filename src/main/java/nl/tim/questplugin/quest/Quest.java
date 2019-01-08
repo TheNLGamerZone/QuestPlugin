@@ -3,6 +3,7 @@ package nl.tim.questplugin.quest;
 import nl.tim.questplugin.area.Area;
 import nl.tim.questplugin.quest.stage.Stage;
 import nl.tim.questplugin.quest.wrappers.RewardWrapper;
+import nl.tim.questplugin.quest.wrappers.TriggerWrapper;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -13,7 +14,8 @@ public class Quest
     private UUID uuid;
     private Area questArea;
     private LinkedList<Stage> questStages;
-    private List<RewardWrapper> rewards;
+    private Set<RewardWrapper> rewards;
+    private Set<TriggerWrapper> triggers;
 
     private boolean areaLocked;
     private boolean replayable;
@@ -27,7 +29,8 @@ public class Quest
     protected Quest(UUID uuid, 
                     Area questArea,
                     LinkedList<Stage> questStages,
-                    List<RewardWrapper> rewards,
+                    Set<RewardWrapper> rewards,
+                    Set<TriggerWrapper> triggers,
                     boolean areaLocked,
                     boolean replayable,
                     boolean hidden, 
@@ -39,6 +42,7 @@ public class Quest
         this.questArea = questArea;
         this.questStages = questStages;
         this.rewards = rewards;
+        this.triggers = triggers;
         this.areaLocked = areaLocked;
         this.replayable = replayable;
         this.hidden = hidden;
@@ -50,14 +54,15 @@ public class Quest
     public Quest(UUID uuid,
                  Area questArea,
                  LinkedList<Stage> questStages,
-                 List<RewardWrapper> rewards,
+                 Set<RewardWrapper> rewards,
+                 Set<TriggerWrapper> triggers,
                  boolean areaLocked,
                  boolean replayable,
                  boolean hidden,
                  boolean branching,
                  boolean sequential)
     {
-        this(uuid, questArea, questStages, rewards, areaLocked, replayable, hidden, branching, sequential, false);
+        this(uuid, questArea, questStages, rewards, triggers, areaLocked, replayable, hidden, branching, sequential, false);
     }
 
     public UUID getUUID()
@@ -72,6 +77,11 @@ public class Quest
     public Area getQuestArea()
     {
         return this.questArea;
+    }
+
+    public Set<TriggerWrapper> getTriggers()
+    {
+        return this.triggers;
     }
 
     /**
@@ -201,7 +211,7 @@ public class Quest
         return this.questStages;
     }
 
-    public List<RewardWrapper> getRewards()
+    public Set<RewardWrapper> getRewards()
     {
         return this.rewards;
     }
