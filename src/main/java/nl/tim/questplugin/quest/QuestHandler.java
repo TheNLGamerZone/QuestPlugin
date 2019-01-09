@@ -6,8 +6,6 @@ import nl.tim.questplugin.QuestPlugin;
 import nl.tim.questplugin.player.QPlayer;
 import nl.tim.questplugin.quest.stage.Stage;
 import nl.tim.questplugin.quest.stage.rewards.StageLinkReward;
-import nl.tim.questplugin.quest.wrappers.RewardWrapper;
-import nl.tim.questplugin.quest.wrappers.TaskWrapper;
 
 import org.bukkit.entity.Player;
 
@@ -51,7 +49,7 @@ public class QuestHandler
         return this.quests;
     }
 
-    public Quest getQuest(UUID uuid)
+    public Quest getQuestByUUID(UUID uuid)
     {
         Set<UUID> uuids = Stream.of(uuid).collect(Collectors.toCollection(HashSet::new));
         Set<Quest> result = this.getQuest(uuids);
@@ -72,19 +70,6 @@ public class QuestHandler
         }
 
         return result;
-    }
-
-    public TaskWrapper getTaskWrapper(UUID uuid)
-    {
-        for (TaskWrapper taskWrapper : this.questPlugin.getTaskHandler().getTaskWrappers())
-        {
-            if (taskWrapper.getUUID().equals(uuid))
-            {
-                return taskWrapper;
-            }
-        }
-
-        return null;
     }
 
     public Stage getStage(UUID uuid)
@@ -122,24 +107,24 @@ public class QuestHandler
     }
 
     /**
-     * Returns a list containing all {@link TaskWrapper}s from the given {@link Quest} the player is actively progressing.
+     * Returns a list containing all {@link Task}s from the given {@link Quest} the player is actively progressing.
      * @param player {@link QPlayer} to check
-     * @param quest Only {@link TaskWrapper}s of this {@link Quest} are returned
-     * @return A list with the applicable {@link TaskWrapper}s.
+     * @param quest Only {@link Task}s of this {@link Quest} are returned
+     * @return A list with the applicable {@link Task}s.
      */
-    public List<TaskWrapper> getActiveTasks(QPlayer player, Quest quest)
+    public List<Task> getActiveTasks(QPlayer player, Quest quest)
     {
-        List<TaskWrapper> result = new ArrayList<>();
+        List<Task> result = new ArrayList<>();
         List<UUID> tasks = player.getActiveTasks(quest);
         Stage stage = this.getActiveStage(player, quest);
 
         if (stage != null)
         {
-            for (TaskWrapper taskWrapper : stage.getConfiguration().getTaskWrappers())
+            for (Task task : stage.getConfiguration().getTasks())
             {
-                if (tasks.contains(taskWrapper.getUUID()))
+                if (tasks.contains(task.getTaskUUID()))
                 {
-                    result.add(taskWrapper);
+                    result.add(task);
 
                     // Check if we're done
                     if (result.size() == tasks.size())
@@ -165,9 +150,9 @@ public class QuestHandler
 
         for (Stage stage : quest.getStages())
         {
-            for (TaskWrapper taskWrapper : stage.getConfiguration().getTaskWrappers())
+            for (Task task : stage.getConfiguration().getTasks())
             {
-                if (tasks.contains(taskWrapper.getUUID()))
+                if (tasks.contains(task.getTaskUUID()))
                 {
                     return stage;
                 }
@@ -177,9 +162,9 @@ public class QuestHandler
         return null;
     }
 
-    private void handleRewards(Collection<RewardWrapper> rewards, QPlayer player)
+    private void handleRewards(Collection<Reward> rewards, QPlayer player)
     {
-        for (RewardWrapper reward : rewards)
+        for (Reward reward : rewards)
         {
             Player bukkitPlayer = questPlugin.getPlayerHandler().getPlayer(player);
 
@@ -209,14 +194,14 @@ public class QuestHandler
             boolean branchCompleted = false;
 
             // Check tasks for completion
-            for (TaskWrapper task : stage.getConfiguration().getTaskWrappers())
+            for (Task task : stage.getConfiguration().getTasks())
             {
                 boolean completed = player.hasCompletedTask(task);
 
                 // Check if this is a branching task
                 if (stage.getConfiguration().getRewardForTask(task)
                         .stream()
-                        .anyMatch(rewardWrapper -> rewardWrapper.getReward() instanceof StageLinkReward))
+                        .anyMatch(reward -> reward instanceof StageLinkReward))
                 {
                     if (completed)
                     {
@@ -236,13 +221,13 @@ public class QuestHandler
 
         } else
         {
-            return player.getCompletedTasks(stage).size() == stage.getConfiguration().getTaskWrappers().size();
+            return player.getCompletedTasks(stage).size() == stage.getConfiguration().getTasks().size();
         }
     }
 
-    public boolean checkTaskComplete(QPlayer player, TaskWrapper task)
+    public boolean checkTaskComplete(QPlayer player, Task task)
     {
-        return player.getProgress(task.getUUID()).getProgress() >= (Integer) task.getTaskConfiguration().get(task.getTask().getFinishOption());
+        return player.getProgress(task.getTaskUUID()).getProgress() >= task.getRequiredProgressToFinish();
     }
 
     public void processProgress(QPlayer player, Quest quest)
@@ -250,11 +235,11 @@ public class QuestHandler
         // First check task completion
         for (UUID taskUUID : player.getActiveTasks(quest))
         {
-            TaskWrapper task = this.getTaskWrapper(taskUUID);
+            Task task = this.questPlugin.getTaskHandler().getTask(taskUUID);
 
             if (this.checkTaskComplete(player, task))
             {
-                this.completeTask(player, quest, this.getStage(task.getStageUUID()), task);
+                this.completeTask(player, quest, task.getStage(), task);
             }
         }
 
@@ -299,8 +284,8 @@ public class QuestHandler
             // Get new branches
             List<UUID> newBranches = stage.getConfiguration().getStageRewards()
                     .stream()
-                    .filter(rw -> rw.getReward() instanceof StageLinkReward)
-                    .map(RewardWrapper::getSetting)
+                    .filter(rw -> rw instanceof StageLinkReward)
+                    .map(rw -> rw.getSetting("STAGE_LINK_UUID"))//TODO: Add enum for these values
                     .map(UUID.class::cast)
                     .collect(Collectors.toList());
 
@@ -315,13 +300,13 @@ public class QuestHandler
         //TODO: Fire event
     }
 
-    public void completeTask(QPlayer player, Quest quest, Stage parent, TaskWrapper taskWrapper)
+    public void completeTask(QPlayer player, Quest quest, Stage parent, Task taskWrapper)
     {
         // Update player progress
         player.completeTaskWrapper(parent, taskWrapper);
 
         // Check if branch
-        if (parent.getConfiguration().getRewardForTask(taskWrapper).stream().anyMatch(rw -> rw.getReward() instanceof StageLinkReward))
+        if (parent.getConfiguration().getRewardForTask(taskWrapper).stream().anyMatch(rw -> rw instanceof StageLinkReward))
         {
             // Was a branch so we have to do some cleaning up
             player.cleanStageProgress(quest, parent);
@@ -361,8 +346,8 @@ public class QuestHandler
         player.clearCompletedQuest(quest);
 
         // Add first tasks to player progress map
-        quest.getStages().getFirst().getConfiguration().getTaskWrappers().stream()
-                .map(TaskWrapper::getUUID)
+        quest.getStages().getFirst().getConfiguration().getTasks().stream()
+                .map(Task::getTaskUUID)
                 .forEach(e -> player.updateProgress(e, 0));
 
         // Fire event

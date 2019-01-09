@@ -1,46 +1,50 @@
 package nl.tim.questplugin.quest;
 
 import nl.tim.questplugin.player.PlayerHandler;
-import nl.tim.questplugin.player.QPlayer;
-import nl.tim.questplugin.quest.stage.Stage;
-import nl.tim.questplugin.storage.Saveable;
 import nl.tim.questplugin.storage.Storage;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Listener;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
-public abstract class Task extends Configurable implements Listener, Saveable
+public abstract class Reward extends Configurable
 {
     private UUID uuid;
     private String identifier;
-    private String displayName;
 
-    private Stage stage;
+    private String displayName;
+    private String description;
+
+    private UUID parentUUID; //TODO: Implement methods to determine parent type
 
     private TaskHandler taskHandler;
     private QuestHandler questHandler;
     private PlayerHandler playerHandler;
 
-    public Task(String displayName)
+    public Reward(String displayName, String description)
     {
         super();
 
         this.displayName = displayName;
+        this.description = description;
     }
 
-    protected void register(Stage stage,
-                            UUID uuid,
+    public abstract void giveReward(Player player);
+
+    protected void register(UUID uuid,
+                            UUID parentUUID,
                             String identifier,
                             TaskHandler taskHandler,
                             QuestHandler questHandler,
                             PlayerHandler playerHandler,
                             Map<String, Object> settings)
     {
-        this.stage = stage;
         this.uuid = uuid;
+        this.parentUUID = parentUUID;
         this.identifier = identifier;
         this.taskHandler = taskHandler;
         this.questHandler = questHandler;
@@ -48,56 +52,53 @@ public abstract class Task extends Configurable implements Listener, Saveable
         this.copySettings(settings);
     }
 
-    public String getDisplayName()
-    {
-        return this.displayName;
-    }
-
     public String getIdentifier()
     {
         return this.identifier;
     }
 
-    public QPlayer getPlayer(Player player)
+    public String getDisplayName()
     {
-        return this.playerHandler.getPlayer(player);
+        return this.displayName;
     }
 
-    protected Stage getStage()
+    public String getDescription()
     {
-        return this.stage;
+        return this.description;
     }
 
-    public UUID getTaskUUID()
+    public UUID getRewardUUID()
     {
-        return this.uuid;
+        return uuid;
+    }
+
+    protected UUID getParentUUID()
+    {
+        return this.parentUUID;
     }
 
     protected TaskHandler getTaskHandler()
     {
-        return this.taskHandler;
+        return taskHandler;
     }
 
     protected QuestHandler getQuestHandler()
     {
-        return this.questHandler;
+        return questHandler;
     }
 
     protected PlayerHandler getPlayerHandler()
     {
-        return this.playerHandler;
+        return playerHandler;
     }
-
-    public abstract Integer getRequiredProgressToFinish();
 
     @Override
     public Set<Storage.DataPair<String>> getData()
     {
         Set<Storage.DataPair<String>> data = new HashSet<>();
 
-        // Add task identifier
-        data.add(new Storage.DataPair<>(uuid + ".task", this.identifier));
-        data.add(new Storage.DataPair<>(uuid + ".stage", this.stage.getUUID().toString()));
+        // Add reward
+        data.add(new Storage.DataPair<>(this.uuid + ".reward", this.identifier));
 
         // Add configuration
         Set<Storage.DataPair<String>> configuration = super.getData();
@@ -121,18 +122,17 @@ public abstract class Task extends Configurable implements Listener, Saveable
             return false;
         }
 
-        Task task = (Task) object;
+        Reward reward = (Reward) object;
 
         return new EqualsBuilder()
-                .append(uuid, task.uuid)
-                .append(identifier, task.identifier)
-                .append(displayName, task.displayName)
-                .append(stage, task.stage)
-                .append(this.getSettingDescriptions(), task.getSettingDescriptions())
-                .append(this.getConfigurationValues(), task.getConfigurationValues())
-                .append(taskHandler, task.taskHandler)
-                .append(questHandler, task.questHandler)
-                .append(playerHandler, task.playerHandler)
+                .append(uuid, reward.uuid)
+                .append(identifier, reward.identifier)
+                .append(displayName, reward.displayName)
+                .append(description, reward.description)
+                .append(parentUUID, reward.parentUUID)
+                .append(taskHandler, reward.taskHandler)
+                .append(questHandler, reward.questHandler)
+                .append(playerHandler, reward.playerHandler)
                 .isEquals();
     }
 
@@ -143,9 +143,8 @@ public abstract class Task extends Configurable implements Listener, Saveable
                 .append(uuid)
                 .append(identifier)
                 .append(displayName)
-                .append(stage)
-                .append(this.getSettingDescriptions())
-                .append(this.getConfigurationValues())
+                .append(description)
+                .append(parentUUID)
                 .append(taskHandler)
                 .append(questHandler)
                 .append(playerHandler)

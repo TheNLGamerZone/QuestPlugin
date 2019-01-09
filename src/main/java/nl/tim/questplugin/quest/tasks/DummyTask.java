@@ -4,13 +4,14 @@ import nl.tim.questplugin.quest.Task;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockBreakEvent;
 
-import java.util.Set;
+import java.util.Map;
 
+@TaskInformation(identifier = "dummytask", author = "Tim")
 public class DummyTask extends Task
 {
     public DummyTask()
     {
-        super("dummytask","Dummy Task");
+        super("Dummy TaskInformation");
     }
 
     @EventHandler
@@ -20,13 +21,13 @@ public class DummyTask extends Task
     }
 
     @Override
-    public Set<TaskOption> getRequiredConfiguration()
+    public Map<String, String> getRequiredConfiguration()
     {
         return null;
     }
 
     @Override
-    public TaskOption getFinishOption()
+    public Integer getRequiredProgressToFinish()
     {
         return null;
     }

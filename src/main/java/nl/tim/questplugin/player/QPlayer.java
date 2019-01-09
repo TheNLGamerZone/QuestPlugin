@@ -1,8 +1,8 @@
 package nl.tim.questplugin.player;
 
 import nl.tim.questplugin.quest.Quest;
+import nl.tim.questplugin.quest.Task;
 import nl.tim.questplugin.quest.wrappers.ProgressWrapper;
-import nl.tim.questplugin.quest.wrappers.TaskWrapper;
 import nl.tim.questplugin.quest.stage.Stage;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.bukkit.Location;
@@ -69,9 +69,9 @@ public class QPlayer
         // Remove progress
         for (Stage stage : quest.getStages())
         {
-            for (TaskWrapper wrapper : stage.getConfiguration().getTaskWrappers())
+            for (Task task : stage.getConfiguration().getTasks())
             {
-                this.progress.remove(this.getProgress(wrapper.getUUID()));
+                this.progress.remove(this.getProgress(task.getTaskUUID()));
             }
         }
 
@@ -123,8 +123,8 @@ public class QPlayer
     }
 
     /**
-     * Updates the progress of {@link TaskWrapper} indicated by the given {@link UUID} for this player.
-     * @param taskUUID {@link UUID} of the {@link TaskWrapper} to update
+     * Updates the progress of {@link Task} indicated by the given {@link UUID} for this player.
+     * @param taskUUID {@link UUID} of the {@link Task} to update
      * @param progress New progress value
      */
     public void updateProgress(UUID taskUUID, int progress)
@@ -149,9 +149,9 @@ public class QPlayer
     {
         if (parent != null && stage != null)
         {
-            for (TaskWrapper wrapper : stage.getConfiguration().getTaskWrappers())
+            for (Task task : stage.getConfiguration().getTasks())
             {
-                this.progress.remove(this.getProgress(wrapper.getUUID()));
+                this.progress.remove(this.getProgress(task.getTaskUUID()));
             }
         }
     }
@@ -170,12 +170,12 @@ public class QPlayer
         }
     }
 
-    public void completeTaskWrapper(Stage parent, TaskWrapper wrapper)
+    public void completeTaskWrapper(Stage parent, Task task)
     {
-        if (parent != null && wrapper != null)
+        if (parent != null && task != null)
         {
-            this.progress.remove(this.getProgress(wrapper.getUUID()));
-            this.completedTasks.put(parent.getUUID(), wrapper.getUUID());
+            this.progress.remove(this.getProgress(task.getTaskUUID()));
+            this.completedTasks.put(parent.getUUID(), task.getTaskUUID());
         }
     }
 
@@ -212,9 +212,9 @@ public class QPlayer
         return this.completedStages.containsValue(stage.getUUID());
     }
 
-    public boolean hasCompletedTask(TaskWrapper wrapper)
+    public boolean hasCompletedTask(Task task)
     {
-        return this.completedTasks.containsValue(wrapper.getUUID());
+        return this.completedTasks.containsValue(task.getTaskUUID());
     }
 
     public boolean isProgressingQuest(Quest quest)

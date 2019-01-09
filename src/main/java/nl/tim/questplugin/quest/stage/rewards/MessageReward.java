@@ -1,6 +1,6 @@
 package nl.tim.questplugin.quest.stage.rewards;
 
-import nl.tim.questplugin.quest.stage.Reward;
+import nl.tim.questplugin.quest.Reward;
 import org.bukkit.entity.Player;
 
 /**
@@ -9,18 +9,18 @@ import org.bukkit.entity.Player;
  * Setting: {@link String}
  * Behaviour: Send the message set as the setting to the player
  */
+@RewardInformation(identifier = "message_reward", author = "Tim")
 public class MessageReward extends Reward
 {
     public MessageReward()
     {
         super("msg",
-                "msg",
                 "User should not see this");
     }
 
     @Override
-    public void giveReward(Player player, Object setting)
+    public void giveReward(Player player)
     {
-        player.sendMessage((String) setting);
+        player.sendMessage(this.getSetting("SEND_MESSAGE_CONTENT").toString()); //TODO: Add enum for these identifiers
     }
 }

@@ -1,10 +1,8 @@
 package nl.tim.questplugin.quest.stage;
 
+import nl.tim.questplugin.quest.Reward;
 import nl.tim.questplugin.quest.Task;
 import nl.tim.questplugin.quest.wrappers.RequirementWrapper;
-import nl.tim.questplugin.quest.wrappers.RewardWrapper;
-import nl.tim.questplugin.quest.wrappers.TaskWrapper;
-import nl.tim.questplugin.quest.tasks.TaskOption;
 import org.apache.commons.collections4.MultiValuedMap;
 
 import java.util.*;
@@ -13,19 +11,19 @@ public class StageConfiguration
 {
     /* Can we get a F in the chat for the person (me) who has to write code to save+load all this */
     private Map<StageOption, Object> stageConfiguration;
-    private Set<TaskWrapper> tasks;
-    private MultiValuedMap<TaskWrapper, RewardWrapper> taskRewards;
+    private Set<Task> tasks;
+    private MultiValuedMap<Task, Reward> taskRewards;
     private List<List<RequirementWrapper>> requirements;
-    private List<RewardWrapper> stageStart;
-    private List<RewardWrapper> stageRewards;
+    private List<Reward> stageStart;
+    private List<Reward> stageRewards;
     private UUID parentUUID;
 
     public StageConfiguration(Map<StageOption, Object> stageConfiguration,
-                              Set<TaskWrapper> tasks,
-                              MultiValuedMap<TaskWrapper, RewardWrapper> taskRewards,
+                              Set<Task> tasks,
+                              MultiValuedMap<Task, Reward> taskRewards,
                               List<List<RequirementWrapper>> requirements,
-                              List<RewardWrapper> stageStart,
-                              List<RewardWrapper> stageRewards,
+                              List<Reward> stageStart,
+                              List<Reward> stageRewards,
                               UUID parentUUID)
     {
         this.stageConfiguration = stageConfiguration;
@@ -51,29 +49,9 @@ public class StageConfiguration
      * Returns a {@link Set<Task>} containing all tasks that were configured for this stage.
      * @return A {@link Set<Task>} containing all tasks that were configured for this stage.
      */
-    public Set<TaskWrapper> getTaskWrappers()
+    public Set<Task> getTasks()
     {
         return this.tasks;
-    }
-
-    /**
-     * Returns a list containing all the configurations for tasks that were set.
-     * @param task {@link Task} to check
-     * @return A list with all configurations, null if task not found.
-     */
-    public List<Map<TaskOption, Object>> getTaskConfigurations(Task task)
-    {
-        List<Map<TaskOption, Object>> result = new ArrayList<>();
-
-        for (TaskWrapper wrapper : this.tasks)
-        {
-            if (task.equals(wrapper.getTask()))
-            {
-                result.add(wrapper.getTaskConfiguration());
-            }
-        }
-
-        return result;
     }
 
     /**
@@ -89,13 +67,13 @@ public class StageConfiguration
     }
 
     /**
-     * Returns a {@link Collection} containing all rewards and their settings for the given {@link TaskWrapper}.
-     * @param wrapper {@link TaskWrapper} to get rewards for
+     * Returns a {@link Collection} containing all rewards and their settings for the given {@link Task}.
+     * @param task {@link Task} to get rewards for
      * @return A {@link Collection} containing all rewards and their settings (empty if task not found).
      */
-    public Collection<RewardWrapper> getRewardForTask(TaskWrapper wrapper)
+    public Collection<Reward> getRewardForTask(Task task)
     {
-        return this.taskRewards.get(wrapper);
+        return this.taskRewards.get(task);
     }
 
     public Map<StageOption, Object> getStageConfigurationMap()
@@ -103,17 +81,17 @@ public class StageConfiguration
         return this.stageConfiguration;
     }
 
-    public MultiValuedMap<TaskWrapper, RewardWrapper> getTaskRewardsMap()
+    public MultiValuedMap<Task, Reward> getTaskRewardsMap()
     {
         return this.taskRewards;
     }
 
-    public List<RewardWrapper> getStageRewards()
+    public List<Reward> getStageRewards()
     {
         return this.stageRewards;
     }
 
-    public List<RewardWrapper> getStageStartRewards()
+    public List<Reward> getStageStartRewards()
     {
         return this.stageStart;
     }

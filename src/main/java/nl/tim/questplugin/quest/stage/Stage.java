@@ -1,11 +1,10 @@
 package nl.tim.questplugin.quest.stage;
 
 import nl.tim.questplugin.player.QPlayer;
+import nl.tim.questplugin.quest.Reward;
 import nl.tim.questplugin.quest.Task;
 import nl.tim.questplugin.quest.stage.rewards.StageLinkReward;
 import nl.tim.questplugin.quest.wrappers.RequirementWrapper;
-import nl.tim.questplugin.quest.wrappers.RewardWrapper;
-import nl.tim.questplugin.quest.wrappers.TaskWrapper;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.bukkit.entity.Player;
@@ -61,7 +60,7 @@ public class Stage
         //TODO: Add log messages
 
         // Check stage rewards for branching
-        if (this.configuration.getStageStartRewards().stream().anyMatch(rw -> rw.getReward() instanceof StageLinkReward))
+        if (this.configuration.getStageStartRewards().stream().anyMatch(rw -> rw instanceof StageLinkReward))
         {
             // Stages cannot have branches as start reward
             this.broken = true;
@@ -76,23 +75,6 @@ public class Stage
             return true;
         }
 
-        // Check task options for errors
-        for (TaskWrapper wrapper : this.configuration.getTaskWrappers())
-        {
-            Task task = wrapper.getTask();
-
-            // Check finish options
-            if (task.getFinishOption() == null ||
-                    task.getFinishOption().getExpectedInput() != Integer.class ||
-                    !task.getRequiredConfiguration().contains(task.getFinishOption()))
-            {
-                this.broken = true;
-                return true;
-            }
-
-            //TODO: Add some more checks maybe? (branch unreachable check)
-        }
-
         // All checks have succeeded
         this.broken = false;
         return false;
@@ -100,7 +82,7 @@ public class Stage
 
     public boolean checkBranching()
     {
-        if (this.configuration.getStageRewards().stream().anyMatch(rw -> rw.getReward() instanceof StageLinkReward))
+        if (this.configuration.getStageRewards().stream().anyMatch(rw -> rw instanceof StageLinkReward))
         {
             this.branching = true;
             return true;
@@ -111,11 +93,11 @@ public class Stage
 
     public boolean checkBranchingTasks()
     {
-        for (TaskWrapper task : this.getConfiguration().getTaskRewardsMap().keySet())
+        for (Task task : this.getConfiguration().getTasks())
         {
-            for (RewardWrapper wrapper : this.getConfiguration().getRewardForTask(task))
+            for (Reward reward : this.getConfiguration().getRewardForTask(task))
             {
-                if (wrapper.getReward() instanceof StageLinkReward)
+                if (reward instanceof StageLinkReward)
                 {
                     this.branchingTasks = true;
                     return true;
