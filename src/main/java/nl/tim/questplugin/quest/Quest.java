@@ -2,7 +2,6 @@ package nl.tim.questplugin.quest;
 
 import nl.tim.questplugin.area.Area;
 import nl.tim.questplugin.quest.stage.Stage;
-import nl.tim.questplugin.quest.wrappers.TriggerWrapper;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -14,7 +13,7 @@ public class Quest
     private Area questArea;
     private LinkedList<Stage> questStages;
     private Set<Reward> rewards;
-    private Set<TriggerWrapper> triggers;
+    private Set<Trigger> triggers;
 
     private boolean areaLocked;
     private boolean replayable;
@@ -29,7 +28,7 @@ public class Quest
                     Area questArea,
                     LinkedList<Stage> questStages,
                     Set<Reward> rewards,
-                    Set<TriggerWrapper> triggers,
+                    Set<Trigger> triggers,
                     boolean areaLocked,
                     boolean replayable,
                     boolean hidden, 
@@ -54,7 +53,7 @@ public class Quest
                  Area questArea,
                  LinkedList<Stage> questStages,
                  Set<Reward> rewards,
-                 Set<TriggerWrapper> triggers,
+                 Set<Trigger> triggers,
                  boolean areaLocked,
                  boolean replayable,
                  boolean hidden,
@@ -78,7 +77,7 @@ public class Quest
         return this.questArea;
     }
 
-    public Set<TriggerWrapper> getTriggers()
+    public Set<Trigger> getTriggers()
     {
         return this.triggers;
     }

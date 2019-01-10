@@ -3,6 +3,7 @@ package nl.tim.questplugin.quest;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import nl.tim.questplugin.QuestPlugin;
+import nl.tim.questplugin.api.CustomExtension;
 import nl.tim.questplugin.player.QPlayer;
 import nl.tim.questplugin.quest.stage.Stage;
 import nl.tim.questplugin.quest.stage.rewards.StageLinkReward;
@@ -17,9 +18,11 @@ import java.util.stream.Stream;
 public class QuestHandler
 {
     private QuestPlugin questPlugin;
-    private Set<Quest> quests;
 
+    private Set<Quest> quests;
     private Set<Stage> stages;
+
+    private Map<String, Class<? extends CustomExtension>> basicTriggers;
 
     @Inject
     public QuestHandler(QuestPlugin questPlugin)
@@ -27,6 +30,7 @@ public class QuestHandler
         this.questPlugin = questPlugin;
         this.quests = new HashSet<>();
         this.stages = new HashSet<>();
+        this.basicTriggers = new HashMap<>();
     }
 
     public void registerQuest(Quest quest)
@@ -39,9 +43,24 @@ public class QuestHandler
         this.stages.add(stage);
     }
 
-    public void registerQuestTrigger(Trigger trigger)
+    protected boolean registerQuestTrigger(Class<? extends CustomExtension> triggerClazz, String identifier)
     {
-        trigger.register(this, this.questPlugin.getPlayerHandler());
+        // This should have already been checked in TaskHandler, but you never know what stupid mistakes I can make
+        if (Trigger.class.isAssignableFrom(triggerClazz) && triggerClazz != Trigger.class)
+        {
+            this.basicTriggers.put(identifier, triggerClazz);
+        } else
+        {
+            QuestPlugin.getLog().warning("Trying to register '" + triggerClazz.getSimpleName() + "', but cannot " +
+                    "determine type (" + triggerClazz.getSimpleName() + ") or extended directly from CustomExtension.");
+        }
+
+        return true;
+    }
+
+    protected Map<String, Class<? extends CustomExtension>> getBasicTriggers()
+    {
+        return this.basicTriggers;
     }
 
     public Set<Quest> getQuests()
@@ -122,7 +141,7 @@ public class QuestHandler
         {
             for (Task task : stage.getConfiguration().getTasks())
             {
-                if (tasks.contains(task.getTaskUUID()))
+                if (tasks.contains(task.getUUID()))
                 {
                     result.add(task);
 
@@ -152,7 +171,7 @@ public class QuestHandler
         {
             for (Task task : stage.getConfiguration().getTasks())
             {
-                if (tasks.contains(task.getTaskUUID()))
+                if (tasks.contains(task.getUUID()))
                 {
                     return stage;
                 }
@@ -227,7 +246,7 @@ public class QuestHandler
 
     public boolean checkTaskComplete(QPlayer player, Task task)
     {
-        return player.getProgress(task.getTaskUUID()).getProgress() >= task.getRequiredProgressToFinish();
+        return player.getProgress(task.getUUID()).getProgress() >= task.getRequiredProgressToFinish();
     }
 
     public void processProgress(QPlayer player, Quest quest)
@@ -347,7 +366,7 @@ public class QuestHandler
 
         // Add first tasks to player progress map
         quest.getStages().getFirst().getConfiguration().getTasks().stream()
-                .map(Task::getTaskUUID)
+                .map(Task::getUUID)
                 .forEach(e -> player.updateProgress(e, 0));
 
         // Fire event

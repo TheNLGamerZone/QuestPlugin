@@ -4,7 +4,13 @@ import com.google.inject.Inject;
 import com.google.inject.Injector;
 import nl.tim.questplugin.player.PlayerHandler;
 import nl.tim.questplugin.quest.QuestHandler;
+import nl.tim.questplugin.quest.Task;
 import nl.tim.questplugin.quest.TaskHandler;
+import nl.tim.questplugin.quest.Trigger;
+import nl.tim.questplugin.quest.stage.Requirement;
+import nl.tim.questplugin.quest.stage.requirements.NameRequirement;
+import nl.tim.questplugin.quest.tasks.DummyTask;
+import nl.tim.questplugin.quest.triggers.AreaTrigger;
 import nl.tim.questplugin.storage.ConfigHandler;
 import nl.tim.questplugin.storage.Storage;
 import nl.tim.questplugin.storage.StorageProvider;
@@ -13,6 +19,8 @@ import nl.tim.questplugin.utils.Constants;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.HashMap;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 public class QuestPlugin extends JavaPlugin

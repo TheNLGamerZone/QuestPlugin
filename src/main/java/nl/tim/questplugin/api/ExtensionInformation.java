@@ -1,4 +1,4 @@
-package nl.tim.questplugin.quest.stage.requirements;
+package nl.tim.questplugin.api;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface RequirementInformation
+public @interface ExtensionInformation
 {
     String identifier();
     String author();

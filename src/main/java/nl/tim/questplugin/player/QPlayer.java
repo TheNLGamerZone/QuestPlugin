@@ -71,7 +71,7 @@ public class QPlayer
         {
             for (Task task : stage.getConfiguration().getTasks())
             {
-                this.progress.remove(this.getProgress(task.getTaskUUID()));
+                this.progress.remove(this.getProgress(task.getUUID()));
             }
         }
 
@@ -151,7 +151,7 @@ public class QPlayer
         {
             for (Task task : stage.getConfiguration().getTasks())
             {
-                this.progress.remove(this.getProgress(task.getTaskUUID()));
+                this.progress.remove(this.getProgress(task.getUUID()));
             }
         }
     }
@@ -174,8 +174,8 @@ public class QPlayer
     {
         if (parent != null && task != null)
         {
-            this.progress.remove(this.getProgress(task.getTaskUUID()));
-            this.completedTasks.put(parent.getUUID(), task.getTaskUUID());
+            this.progress.remove(this.getProgress(task.getUUID()));
+            this.completedTasks.put(parent.getUUID(), task.getUUID());
         }
     }
 
@@ -214,7 +214,7 @@ public class QPlayer
 
     public boolean hasCompletedTask(Task task)
     {
-        return this.completedTasks.containsValue(task.getTaskUUID());
+        return this.completedTasks.containsValue(task.getUUID());
     }
 
     public boolean isProgressingQuest(Quest quest)

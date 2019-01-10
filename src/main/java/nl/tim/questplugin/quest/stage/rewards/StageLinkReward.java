@@ -1,5 +1,6 @@
 package nl.tim.questplugin.quest.stage.rewards;
 
+import nl.tim.questplugin.api.ExtensionInformation;
 import nl.tim.questplugin.quest.Reward;
 import org.bukkit.entity.Player;
 
@@ -8,7 +9,7 @@ import org.bukkit.entity.Player;
  * Setting: {@link java.util.UUID}
  * Behaviour: Link the set {@link nl.tim.questplugin.quest.stage.Stage} to the quest
  */
-@RewardInformation(identifier = "stage_link", author = "Tim")
+@ExtensionInformation(identifier = "stage_link", author = "Tim")
 public class StageLinkReward extends Reward
 {
     public StageLinkReward()

@@ -1,29 +1,33 @@
 package nl.tim.questplugin.quest.stage;
 
+import nl.tim.questplugin.api.CustomExtension;
 import nl.tim.questplugin.player.QPlayer;
+import nl.tim.questplugin.storage.Storage;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.bukkit.entity.Player;
 
-public abstract class Requirement
+import java.util.HashSet;
+import java.util.Set;
+
+public abstract class Requirement extends CustomExtension
 {
-    private String identifier;
     private String displayName;
     private String description;
+    private boolean negate;
 
-    public Requirement(String identifier, String displayName, String description)
+    public Requirement(String displayName, String description)
     {
-        this.identifier = identifier;
         this.displayName = displayName;
         this.description = description;
     }
 
-    public abstract boolean checkRequirement(QPlayer qPlayer, Player player, Stage stage, Object setting);
-
-    public String getIdentifier()
+    public void register(boolean negate)
     {
-        return this.identifier;
+        this.negate = negate;
     }
+
+    public abstract boolean checkRequirement(QPlayer qPlayer, Player player);
 
     public String getDisplayName()
     {
@@ -33,6 +37,24 @@ public abstract class Requirement
     public String getDescription()
     {
         return this.description;
+    }
+
+    @Override
+    public Set<Storage.DataPair<String>> getData()
+    {
+        Set<Storage.DataPair<String>> data = new HashSet<>();
+
+        // Add reward
+        data.add(new Storage.DataPair<>(this.getUUID() + ".requirement", this.getIdentifier()));
+        data.add(new Storage.DataPair<>(this.getUUID() + ".negate", this.negate + ""));
+
+        // Add configuration
+        Set<Storage.DataPair<String>> configuration = super.getData();
+
+        configuration.forEach(dp -> dp.prependKey(this.getUUID() + "."));
+        data.addAll(configuration);
+
+        return data;
     }
 
     @Override
@@ -51,7 +73,8 @@ public abstract class Requirement
         Requirement that = (Requirement) object;
 
         return new EqualsBuilder()
-                .append(identifier, that.identifier)
+                .appendSuper(super.equals(object))
+                .append(negate, that.negate)
                 .append(displayName, that.displayName)
                 .append(description, that.description)
                 .isEquals();
@@ -61,9 +84,10 @@ public abstract class Requirement
     public int hashCode()
     {
         return new HashCodeBuilder(17, 37)
-                .append(identifier)
+                .appendSuper(super.hashCode())
                 .append(displayName)
                 .append(description)
+                .append(negate)
                 .toHashCode();
     }
 }

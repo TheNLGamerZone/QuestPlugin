@@ -1,29 +1,21 @@
 package nl.tim.questplugin.quest;
 
-import nl.tim.questplugin.player.PlayerHandler;
+import nl.tim.questplugin.api.CustomExtension;
 import nl.tim.questplugin.storage.Storage;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.bukkit.entity.Player;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-public abstract class Reward extends Configurable
+public abstract class Reward extends CustomExtension
 {
-    private UUID uuid;
-    private String identifier;
-
     private String displayName;
     private String description;
 
     private UUID parentUUID; //TODO: Implement methods to determine parent type
-
-    private TaskHandler taskHandler;
-    private QuestHandler questHandler;
-    private PlayerHandler playerHandler;
 
     public Reward(String displayName, String description)
     {
@@ -35,26 +27,9 @@ public abstract class Reward extends Configurable
 
     public abstract void giveReward(Player player);
 
-    protected void register(UUID uuid,
-                            UUID parentUUID,
-                            String identifier,
-                            TaskHandler taskHandler,
-                            QuestHandler questHandler,
-                            PlayerHandler playerHandler,
-                            Map<String, Object> settings)
+    protected void register(UUID parentUUID)
     {
-        this.uuid = uuid;
         this.parentUUID = parentUUID;
-        this.identifier = identifier;
-        this.taskHandler = taskHandler;
-        this.questHandler = questHandler;
-        this.playerHandler = playerHandler;
-        this.copySettings(settings);
-    }
-
-    public String getIdentifier()
-    {
-        return this.identifier;
     }
 
     public String getDisplayName()
@@ -67,29 +42,9 @@ public abstract class Reward extends Configurable
         return this.description;
     }
 
-    public UUID getRewardUUID()
-    {
-        return uuid;
-    }
-
     protected UUID getParentUUID()
     {
         return this.parentUUID;
-    }
-
-    protected TaskHandler getTaskHandler()
-    {
-        return taskHandler;
-    }
-
-    protected QuestHandler getQuestHandler()
-    {
-        return questHandler;
-    }
-
-    protected PlayerHandler getPlayerHandler()
-    {
-        return playerHandler;
     }
 
     @Override
@@ -98,12 +53,12 @@ public abstract class Reward extends Configurable
         Set<Storage.DataPair<String>> data = new HashSet<>();
 
         // Add reward
-        data.add(new Storage.DataPair<>(this.uuid + ".reward", this.identifier));
+        data.add(new Storage.DataPair<>(this.getUUID() + ".reward", this.getIdentifier()));
 
         // Add configuration
         Set<Storage.DataPair<String>> configuration = super.getData();
 
-        configuration.forEach(dp -> dp.prependKey(this.uuid + "."));
+        configuration.forEach(dp -> dp.prependKey(this.getUUID() + "."));
         data.addAll(configuration);
 
         return data;
@@ -125,14 +80,10 @@ public abstract class Reward extends Configurable
         Reward reward = (Reward) object;
 
         return new EqualsBuilder()
-                .append(uuid, reward.uuid)
-                .append(identifier, reward.identifier)
+                .appendSuper(super.equals(object))
                 .append(displayName, reward.displayName)
                 .append(description, reward.description)
                 .append(parentUUID, reward.parentUUID)
-                .append(taskHandler, reward.taskHandler)
-                .append(questHandler, reward.questHandler)
-                .append(playerHandler, reward.playerHandler)
                 .isEquals();
     }
 
@@ -140,14 +91,10 @@ public abstract class Reward extends Configurable
     public int hashCode()
     {
         return new HashCodeBuilder(17, 37)
-                .append(uuid)
-                .append(identifier)
+                .appendSuper(super.hashCode())
                 .append(displayName)
                 .append(description)
                 .append(parentUUID)
-                .append(taskHandler)
-                .append(questHandler)
-                .append(playerHandler)
                 .toHashCode();
     }
 }

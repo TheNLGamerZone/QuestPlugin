@@ -4,7 +4,6 @@ import nl.tim.questplugin.player.QPlayer;
 import nl.tim.questplugin.quest.Reward;
 import nl.tim.questplugin.quest.Task;
 import nl.tim.questplugin.quest.stage.rewards.StageLinkReward;
-import nl.tim.questplugin.quest.wrappers.RequirementWrapper;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.bukkit.entity.Player;
@@ -131,13 +130,13 @@ public class Stage
 
     public boolean checkRequirements(QPlayer qPlayer, Player player)
     {
-        for (List<RequirementWrapper> requirementGroup : this.configuration.getRequirements())
+        for (List<Requirement> requirementGroup : this.configuration.getRequirements())
         {
             boolean requirementMet = false;
 
-            for (RequirementWrapper requirement : requirementGroup)
+            for (Requirement requirement : requirementGroup)
             {
-                if (requirement.requirementMet(qPlayer, player, this))
+                if (requirement.checkRequirement(qPlayer, player))
                 {
                     requirementMet = true;
                     break;

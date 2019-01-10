@@ -2,7 +2,6 @@ package nl.tim.questplugin.quest.stage;
 
 import nl.tim.questplugin.quest.Reward;
 import nl.tim.questplugin.quest.Task;
-import nl.tim.questplugin.quest.wrappers.RequirementWrapper;
 import org.apache.commons.collections4.MultiValuedMap;
 
 import java.util.*;
@@ -13,7 +12,7 @@ public class StageConfiguration
     private Map<StageOption, Object> stageConfiguration;
     private Set<Task> tasks;
     private MultiValuedMap<Task, Reward> taskRewards;
-    private List<List<RequirementWrapper>> requirements;
+    private List<List<Requirement>> requirements;
     private List<Reward> stageStart;
     private List<Reward> stageRewards;
     private UUID parentUUID;
@@ -21,7 +20,7 @@ public class StageConfiguration
     public StageConfiguration(Map<StageOption, Object> stageConfiguration,
                               Set<Task> tasks,
                               MultiValuedMap<Task, Reward> taskRewards,
-                              List<List<RequirementWrapper>> requirements,
+                              List<List<Requirement>> requirements,
                               List<Reward> stageStart,
                               List<Reward> stageRewards,
                               UUID parentUUID)
@@ -61,7 +60,7 @@ public class StageConfiguration
      * (i.e. all maps in the list have to be marked as 'requirement met' in order for the stage requirements to be met).
      * @return A {@link List} of {@link List}s.
      */
-    public List<List<RequirementWrapper>> getRequirements()
+    public List<List<Requirement>> getRequirements()
     {
         return this.requirements;
     }

@@ -1,33 +1,32 @@
 package nl.tim.questplugin.quest;
 
-import nl.tim.questplugin.player.PlayerHandler;
+import nl.tim.questplugin.api.CustomExtension;
 import nl.tim.questplugin.player.QPlayer;
-import nl.tim.questplugin.quest.wrappers.TriggerWrapper;
+import nl.tim.questplugin.storage.Storage;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 
 import java.util.HashSet;
 import java.util.Set;
 
-public abstract class Trigger implements Listener
+public abstract class Trigger extends CustomExtension implements Listener
 {
-    private String identifier;
     private String displayName;
     private String description;
 
-    private QuestHandler questHandler;
-    private PlayerHandler playerHandler;
+    private Quest quest;
 
-    public Trigger(String identifier, String displayName, String description)
+    public Trigger(String displayName, String description)
     {
-        this.identifier = identifier;
         this.displayName = displayName;
         this.description = description;
     }
 
-    public String getIdentifier()
+    protected void register(Quest quest)
     {
-        return this.identifier;
+        this.quest = quest;
     }
 
     public String getDisplayName()
@@ -42,45 +41,62 @@ public abstract class Trigger implements Listener
 
     protected QPlayer getPlayer(Player player)
     {
-        return this.playerHandler.getPlayer(player);
+        return this.getPlayerHandler().getPlayer(player);
     }
 
-    protected Set<Quest> getQuests()
+    protected void trigger(QPlayer player)
     {
-        Set<Quest> listeningQuests = new HashSet<>();
+        this.getQuestHandler().acceptQuest(player, this.quest);
+    }
 
-        for (Quest quest : this.questHandler.getQuests())
+    @Override
+    public Set<Storage.DataPair<String>> getData()
+    {
+        Set<Storage.DataPair<String>> data = new HashSet<>();
+
+        // Add reward
+        data.add(new Storage.DataPair<>(this.getUUID() + ".trigger", this.getIdentifier()));
+
+        // Add configuration
+        Set<Storage.DataPair<String>> configuration = super.getData();
+
+        configuration.forEach(dp -> dp.prependKey(this.getUUID() + "."));
+        data.addAll(configuration);
+
+        return data;
+    }
+
+    @Override
+    public boolean equals(Object object)
+    {
+        if (this == object)
         {
-            for (TriggerWrapper trigger : quest.getTriggers())
-            {
-                if (trigger.getTrigger().getIdentifier().equals(this.identifier))
-                {
-                    listeningQuests.add(quest);
-                }
-            }
+            return true;
         }
 
-        return listeningQuests;
+        if (object == null || getClass() != object.getClass())
+        {
+            return false;
+        }
+
+        Trigger trigger = (Trigger) object;
+
+        return new EqualsBuilder()
+                .appendSuper(super.equals(object))
+                .append(displayName, trigger.displayName)
+                .append(description, trigger.description)
+                .append(quest, trigger.quest)
+                .isEquals();
     }
 
-    protected Set<TriggerWrapper> getTriggersForQuest(Quest quest)
+    @Override
+    public int hashCode()
     {
-        return quest.getTriggers();
-    }
-
-    protected void trigger(Quest quest, QPlayer player)
-    {
-        this.questHandler.acceptQuest(player, quest);
-    }
-
-    protected Object getSetting(TriggerWrapper wrapper)
-    {
-        return wrapper.getSetting();
-    }
-
-    protected void register(QuestHandler questHandler, PlayerHandler playerHandler)
-    {
-        this.questHandler = questHandler;
-        this.playerHandler = playerHandler;
+        return new HashCodeBuilder(17, 37)
+                .appendSuper(super.hashCode())
+                .append(displayName)
+                .append(description)
+                .append(quest)
+                .toHashCode();
     }
 }

@@ -3,22 +3,19 @@ package nl.tim.questplugin.quest;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import nl.tim.questplugin.QuestPlugin;
+import nl.tim.questplugin.api.CustomExtension;
+import nl.tim.questplugin.api.ExtensionInformation;
 import nl.tim.questplugin.quest.stage.Requirement;
-import nl.tim.questplugin.quest.stage.Stage;
-import nl.tim.questplugin.quest.stage.requirements.RequirementInformation;
-import nl.tim.questplugin.quest.stage.rewards.RewardInformation;
-import nl.tim.questplugin.quest.tasks.TaskInformation;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 @Singleton
 public class TaskHandler
 {
-    private Map<String, Class<? extends Task>> baseTasks;
-    private Map<String, Class<? extends Reward>> baseRewards;
-    private Map<String, Class<? extends Requirement>> baseRequirements;
+    private Map<String, Class<? extends CustomExtension>> baseTasks;
+    private Map<String, Class<? extends CustomExtension>> baseRewards;
+    private Map<String, Class<? extends CustomExtension>> baseRequirements;
 
     private Set<Task> tasks;
     private Set<Requirement> requirements;
@@ -39,158 +36,115 @@ public class TaskHandler
         this.rewards = new HashSet<>();
     }
 
-    public boolean registerTask(Class<? extends Task> task)
+    public boolean registerCustomExtension(Class<? extends CustomExtension> extension)
     {
-        // Check if annotation is not present
-        if (!task.isAnnotationPresent(TaskInformation.class))
+        Class<?> superClazz = extension.getSuperclass();
+
+        // Check if extension has annotation or not parent (idk how the latter would happen but ok)
+        if (superClazz == null || !extension.isAnnotationPresent(ExtensionInformation.class))
         {
-            QuestPlugin.getLog().warning("Trying to register task '" + task.getSimpleName() + "', " +
+            QuestPlugin.getLog().warning("Trying to register extension '" + extension.getSimpleName() + "', " +
                     "but it does not contain the needed information!");
             return false;
         }
 
-        // Get information
-        TaskInformation taskInformation = task.getAnnotation(TaskInformation.class);
+        // Get needed information
+        ExtensionInformation extensionInformation = extension.getAnnotation(ExtensionInformation.class);
+        String identifier = extensionInformation.identifier();
 
-        QuestPlugin.getLog().info("Registered task '" + task.getSimpleName() + "' by " + taskInformation.author());
+        QuestPlugin.getLog().info("Registered extension '" + extension.getSimpleName() + "' by " + extensionInformation.author());
 
-        // Add it to the base tasks
-        this.baseTasks.put(taskInformation.identifier(), task);
 
-        return true;
-    }
-
-    public boolean registerRequirement(Class<? extends Requirement> requirement)
-    {
-        // Check if annotation is not present
-        if (!requirement.isAnnotationPresent(RequirementInformation.class))
+        // Check super class
+        if (Task.class.isAssignableFrom(extension) && extension != Task.class)
         {
-            QuestPlugin.getLog().warning("Trying to register requirement '" + requirement.getSimpleName() + "', " +
-                    "but it does not contain the needed information!");
+            this.baseTasks.put(identifier, extension);
+        } else if (Requirement.class.isAssignableFrom(extension) && extension != Requirement.class)
+        {
+            this.baseRequirements.put(identifier, extension);
+        } else if (Reward.class.isAssignableFrom(extension) && extension != Reward.class)
+        {
+            this.baseRewards.put(identifier, extension);
+        } else if (Trigger.class.isAssignableFrom(extension) && extension != Trigger.class)
+        {
+            return this.questPlugin.getQuestHandler().registerQuestTrigger(extension, identifier);
+        } else
+        {
+            QuestPlugin.getLog().warning("Trying to register '" + extension.getSimpleName() + "', but cannot " +
+                    "determine type (" + superClazz.getSimpleName() + ")or extended directly from CustomExtension.");
             return false;
         }
 
-        // Get information
-        RequirementInformation requirementInformation = requirement.getAnnotation(RequirementInformation.class);
-
-        QuestPlugin.getLog().info("Registered requirement '" + requirement.getSimpleName() + "' by " + requirementInformation.author());
-
-        // Add it to the base tasks
-        this.baseRequirements.put(requirementInformation.identifier(), requirement);
-
         return true;
     }
 
-    public boolean registerReward(Class<? extends Reward> reward)
+    private Map<String, Class<? extends CustomExtension>> getMap(Class<? extends CustomExtension> type)
     {
-        // Check if annotation is not present
-        if (!reward.isAnnotationPresent(RewardInformation.class))
+        if (type == Task.class)
         {
-            QuestPlugin.getLog().warning("Trying to register reward '" + reward.getSimpleName() + "', " +
-                    "but it does not contain the needed information!");
-            return false;
+            return this.baseTasks;
+        } else if (type == Requirement.class)
+        {
+            return this.baseRequirements;
+        } else if (type == Reward.class)
+        {
+            return this.baseRewards;
+        } else if (type == Trigger.class)
+        {
+            return this.questPlugin.getQuestHandler().getBasicTriggers();
         }
 
-        // Get information
-        RewardInformation rewardInformation = reward.getAnnotation(RewardInformation.class);
-
-        QuestPlugin.getLog().info("Registered reward '" + reward.getSimpleName() + "' by " + rewardInformation.author());
-
-        // Add it to the base tasks
-        this.baseRewards.put(rewardInformation.identifier(), reward);
-
-        return true;
+        return null;
     }
 
-    public Task buildTask(String identifier,
-                          Stage stage,
-                          UUID uuid,
-                          Map<String, Object> settings)
+    public CustomExtension buildExtension(Class<? extends CustomExtension> type,
+                                          String identifier,
+                                          UUID uuid,
+                                          Map<String, Object> configuration)
     {
-        Class<? extends Task> taskClazz = this.baseTasks.get(identifier);
+        Map<String, Class<? extends CustomExtension>> map = this.getMap(type);
 
-        // Check if task was loaded
-        if (taskClazz == null)
+        // Check if map was found
+        if (map == null)
         {
-            // This is probably a external task, so we just ignore this one and hopefully the external plugin will
-            // have registered its task after this one started up. If not the admin(s) will get a message on join
+            QuestPlugin.getLog().severe("Could not find base map for extension type '" + type.getSimpleName() + "'");
             return null;
         }
 
-        // Create new instance of task
-        Constructor<? extends Task> constructor;
-        Task task;
+        Class<? extends CustomExtension> extensionClazz = map.get(identifier);
 
+        // Check if extension was found
+        if (extensionClazz == null)
+        {
+            // This is probably some third party extension that is not yet available, will return null so the quest gets marked as
+            // broken. In case the extension is registered by another plugin it will be built later anyway
+            return null;
+        }
+
+        CustomExtension extension;
+
+        // Try to get an instance
         try
         {
-             constructor = taskClazz.getConstructor();
-             task = constructor.newInstance();
-        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e)
+            extension = extensionClazz.getConstructor().newInstance();
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e)
         {
-            QuestPlugin.getLog().severe("An error occurred while trying to build a new task of type '" + identifier + "': ");
+            QuestPlugin.getLog().severe("An error occurred while building a extension: ");
             e.printStackTrace();
 
             return null;
         }
 
-        // Register task
-        task.register(stage,
-                uuid,
+        // Register the basic stuff
+        extension.register(uuid,
                 identifier,
                 this,
                 this.questPlugin.getQuestHandler(),
                 this.questPlugin.getPlayerHandler(),
-                settings);
+                configuration);
 
-        // Register task as listener with bukkit
-        this.questPlugin.getServer().getPluginManager().registerEvents(task, this.questPlugin);
-
-        // Finally return task
-        return task;
-    }
-
-    public Reward buildReward(String identifier,
-                              UUID uuid,
-                              UUID parentUUID,
-                              Map<String, Object> settings)
-    {
-        Class<? extends Reward> rewardClazz = this.baseRewards.get(identifier);
-
-        // Check if reward was loaded
-        if (rewardClazz == null)
-        {
-            // This is probably a external reward, so we just ignore this one and hopefully the external plugin will
-            // have registered its reward after this one started up. If not the admin(s) will get a message on join
-            return null;
-        }
-
-        // Create new instance of task
-        Constructor<? extends Reward> constructor;
-        Reward reward;
-
-        try
-        {
-            constructor = rewardClazz.getConstructor();
-            reward = constructor.newInstance();
-        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e)
-        {
-            QuestPlugin.getLog().severe("An error occurred while trying to build a new reward of type '" + identifier + "': ");
-            e.printStackTrace();
-
-            return null;
-        }
-
-        // Register reward
-        reward.register(uuid,
-                parentUUID,
-                identifier,
-                this,
-                this.questPlugin.getQuestHandler(),
-                this.questPlugin.getPlayerHandler(),
-                settings);
-
-        // Finally return reward
-        return reward;
+        // Return the extension
+        return extension;
     }
 
     public Set<Task> getTasks()
@@ -212,7 +166,7 @@ public class TaskHandler
     {
         for (Task task : this.tasks)
         {
-            if (task.getTaskUUID().equals(uuid))
+            if (task.getUUID().equals(uuid))
             {
                 return task;
             }

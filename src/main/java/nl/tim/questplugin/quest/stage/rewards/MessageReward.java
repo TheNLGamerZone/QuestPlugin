@@ -1,5 +1,6 @@
 package nl.tim.questplugin.quest.stage.rewards;
 
+import nl.tim.questplugin.api.ExtensionInformation;
 import nl.tim.questplugin.quest.Reward;
 import org.bukkit.entity.Player;
 
@@ -9,7 +10,7 @@ import org.bukkit.entity.Player;
  * Setting: {@link String}
  * Behaviour: Send the message set as the setting to the player
  */
-@RewardInformation(identifier = "message_reward", author = "Tim")
+@ExtensionInformation(identifier = "message_reward", author = "Tim")
 public class MessageReward extends Reward
 {
     public MessageReward()
