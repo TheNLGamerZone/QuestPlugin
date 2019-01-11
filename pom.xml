@@ -170,6 +170,7 @@
             </plugin>
         </plugins>
         <directory>${project.basedir}/server/plugins</directory>
+        <finalName>${project.artifactId}</finalName>
     </build>
 
 </project>
