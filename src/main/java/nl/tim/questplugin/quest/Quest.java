@@ -1,19 +1,25 @@
 package nl.tim.questplugin.quest;
 
+import nl.tim.questplugin.api.Requirement;
+import nl.tim.questplugin.api.Reward;
+import nl.tim.questplugin.api.Trigger;
 import nl.tim.questplugin.area.Area;
+import nl.tim.questplugin.player.QPlayer;
 import nl.tim.questplugin.quest.stage.Stage;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.bukkit.entity.Player;
 
 import java.util.*;
 
-public class Quest
+public class Quest implements Owner
 {
     private UUID uuid;
     private Area questArea;
     private LinkedList<Stage> questStages;
     private Set<Reward> rewards;
     private Set<Trigger> triggers;
+    private List<List<Requirement>> requirements;
 
     private boolean areaLocked;
     private boolean replayable;
@@ -29,6 +35,7 @@ public class Quest
                     LinkedList<Stage> questStages,
                     Set<Reward> rewards,
                     Set<Trigger> triggers,
+                    List<List<Requirement>> requirements,
                     boolean areaLocked,
                     boolean replayable,
                     boolean hidden, 
@@ -41,6 +48,7 @@ public class Quest
         this.questStages = questStages;
         this.rewards = rewards;
         this.triggers = triggers;
+        this.requirements = requirements;
         this.areaLocked = areaLocked;
         this.replayable = replayable;
         this.hidden = hidden;
@@ -54,13 +62,14 @@ public class Quest
                  LinkedList<Stage> questStages,
                  Set<Reward> rewards,
                  Set<Trigger> triggers,
+                 List<List<Requirement>> requirements,
                  boolean areaLocked,
                  boolean replayable,
                  boolean hidden,
                  boolean branching,
                  boolean sequential)
     {
-        this(uuid, questArea, questStages, rewards, triggers, areaLocked, replayable, hidden, branching, sequential, false);
+        this(uuid, questArea, questStages, rewards, triggers, requirements, areaLocked, replayable, hidden, branching, sequential, false);
     }
 
     public UUID getUUID()
@@ -187,6 +196,42 @@ public class Quest
     public boolean isSequential()
     {
         return this.sequential || this.hasBranches();
+    }
+
+    /**
+     * Returns a {@link List} of {@link List}s. All {@link Requirement}s in a {@link List}
+     * form a group of requirements that have an OR relation (i.e. when at least one requirement in a group is met,
+     * the whole group will be counted as 'requirement met'), while each all {@link List} have a AND relation
+     * (i.e. all maps in the list have to be marked as 'requirement met' in order for the quest requirements to be met).
+     * @return A {@link List} of {@link List}s.
+     */
+    public List<List<Requirement>> getRequirements()
+    {
+        return this.requirements;
+    }
+
+    public boolean checkRequirements(Player player)
+    {
+        for (List<Requirement> requirementGroup : this.requirements)
+        {
+            boolean requirementMet = false;
+
+            for (Requirement requirement : requirementGroup)
+            {
+                if (requirement.requirementMet(player))
+                {
+                    requirementMet = true;
+                    break;
+                }
+            }
+
+            if (!requirementMet)
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public List<Stage> getFirstStages()

@@ -1,7 +1,7 @@
 package nl.tim.questplugin.quest.triggers;
 
 import nl.tim.questplugin.api.ExtensionInformation;
-import nl.tim.questplugin.quest.Trigger;
+import nl.tim.questplugin.api.Trigger;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerMoveEvent;
 

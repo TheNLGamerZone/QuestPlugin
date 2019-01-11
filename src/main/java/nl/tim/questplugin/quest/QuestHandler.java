@@ -3,7 +3,9 @@ package nl.tim.questplugin.quest;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import nl.tim.questplugin.QuestPlugin;
-import nl.tim.questplugin.api.CustomExtension;
+import nl.tim.questplugin.api.Reward;
+import nl.tim.questplugin.api.Task;
+import nl.tim.questplugin.api.Trigger;
 import nl.tim.questplugin.player.QPlayer;
 import nl.tim.questplugin.quest.stage.Stage;
 import nl.tim.questplugin.quest.stage.rewards.StageLinkReward;
@@ -343,7 +345,7 @@ public class QuestHandler
         // Check requirements
         for (Stage stage : quest.getFirstStages())
         {
-            if (!stage.checkRequirements(player, questPlugin.getPlayerHandler().getPlayer(player)))
+            if (!stage.checkRequirements(questPlugin.getPlayerHandler().getPlayer(player)))
             {
                 return false;
             }

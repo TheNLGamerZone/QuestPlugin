@@ -1,7 +1,8 @@
 package nl.tim.questplugin.quest.stage;
 
-import nl.tim.questplugin.quest.Reward;
-import nl.tim.questplugin.quest.Task;
+import nl.tim.questplugin.api.Requirement;
+import nl.tim.questplugin.api.Reward;
+import nl.tim.questplugin.api.Task;
 import org.apache.commons.collections4.MultiValuedMap;
 
 import java.util.*;

@@ -1,7 +1,7 @@
 package nl.tim.questplugin.player;
 
 import nl.tim.questplugin.quest.Quest;
-import nl.tim.questplugin.quest.Task;
+import nl.tim.questplugin.api.Task;
 import nl.tim.questplugin.quest.wrappers.ProgressWrapper;
 import nl.tim.questplugin.quest.stage.Stage;
 import org.apache.commons.collections4.MultiValuedMap;

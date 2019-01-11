@@ -3,9 +3,7 @@ package nl.tim.questplugin.quest;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import nl.tim.questplugin.QuestPlugin;
-import nl.tim.questplugin.api.CustomExtension;
-import nl.tim.questplugin.api.ExtensionInformation;
-import nl.tim.questplugin.quest.stage.Requirement;
+import nl.tim.questplugin.api.*;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
@@ -100,6 +98,7 @@ public class TaskHandler
     public CustomExtension buildExtension(Class<? extends CustomExtension> type,
                                           String identifier,
                                           UUID uuid,
+                                          Owner owner,
                                           Map<String, Object> configuration)
     {
         Map<String, Class<? extends CustomExtension>> map = this.getMap(type);
@@ -138,6 +137,7 @@ public class TaskHandler
         // Register the basic stuff
         extension.register(uuid,
                 identifier,
+                owner,
                 this,
                 this.questPlugin.getQuestHandler(),
                 this.questPlugin.getPlayerHandler(),

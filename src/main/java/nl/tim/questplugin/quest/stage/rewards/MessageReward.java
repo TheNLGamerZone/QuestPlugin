@@ -1,7 +1,8 @@
 package nl.tim.questplugin.quest.stage.rewards;
 
 import nl.tim.questplugin.api.ExtensionInformation;
-import nl.tim.questplugin.quest.Reward;
+import nl.tim.questplugin.api.InputType;
+import nl.tim.questplugin.api.Reward;
 import org.bukkit.entity.Player;
 
 /**
@@ -20,8 +21,14 @@ public class MessageReward extends Reward
     }
 
     @Override
+    public void init()
+    {
+        this.addConfiguration("msg", "Message to send", InputType.STRING);
+    }
+
+    @Override
     public void giveReward(Player player)
     {
-        player.sendMessage(this.getSetting("SEND_MESSAGE_CONTENT").toString()); //TODO: Add enum for these identifiers
+        player.sendMessage(this.getSetting("msg").toString());
     }
 }

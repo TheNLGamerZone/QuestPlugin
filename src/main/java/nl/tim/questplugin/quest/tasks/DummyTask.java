@@ -1,7 +1,7 @@
 package nl.tim.questplugin.quest.tasks;
 
 import nl.tim.questplugin.api.ExtensionInformation;
-import nl.tim.questplugin.quest.Task;
+import nl.tim.questplugin.api.Task;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.block.BlockBreakEvent;
 
@@ -10,7 +10,7 @@ public class DummyTask extends Task
 {
     public DummyTask()
     {
-        super("Dummy TaskInformation");
+        super("Dummy Task", "A very cool dummy task");
     }
 
     @EventHandler
