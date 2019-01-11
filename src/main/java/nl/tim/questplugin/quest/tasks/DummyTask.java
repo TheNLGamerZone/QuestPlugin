@@ -33,7 +33,7 @@ public class DummyTask extends Task
     @EventHandler
     public void onBlockBreakEvent(BlockBreakEvent event)
     {
-        // much wow
+        // much wow such travis
     }
 
     @Override
