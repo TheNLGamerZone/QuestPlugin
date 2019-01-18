@@ -21,7 +21,6 @@ import nl.tim.questplugin.api.Requirement;
 import nl.tim.questplugin.api.Reward;
 import nl.tim.questplugin.api.Task;
 import nl.tim.questplugin.quest.Owner;
-import nl.tim.questplugin.quest.Quest;
 import nl.tim.questplugin.quest.stage.rewards.StageLinkReward;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -33,7 +32,7 @@ import java.util.UUID;
 public class Stage implements Owner
 {
     private String identifier;
-    private Quest quest;
+    private UUID quest;
     private UUID uuid;
     private StageConfiguration configuration;
 
@@ -43,7 +42,7 @@ public class Stage implements Owner
     private boolean branchingTasks;
 
     public Stage(String identifier,
-                 Quest quest,
+                 UUID quest,
                  UUID uuid,
                  StageConfiguration configuration,
                  boolean broken,
@@ -149,6 +148,7 @@ public class Stage implements Owner
 
     public boolean checkRequirements(Player player)
     {
+        //TODO: Maybe use requirement wrappers instead, so they can be more easily saved/loaded/worked with
         for (List<Requirement> requirementGroup : this.configuration.getRequirements())
         {
             boolean requirementMet = false;
@@ -176,7 +176,7 @@ public class Stage implements Owner
         return this.uuid;
     }
 
-    public Quest getQuest()
+    public UUID getQuest()
     {
         return this.quest;
     }

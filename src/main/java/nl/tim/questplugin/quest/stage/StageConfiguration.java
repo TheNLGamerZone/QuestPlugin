@@ -75,7 +75,7 @@ public class StageConfiguration
      * Returns a {@link List} of {@link List}s. All {@link Requirement}s in a {@link List}
      * form a group of requirements that have an OR relation (i.e. when at least one requirement in a group is met,
      * the whole group will be counted as 'requirement met'), while each all {@link List} have a AND relation
-     * (i.e. all maps in the list have to be marked as 'requirement met' in order for the stage requirements to be met).
+     * (i.e. all maps in the list have to be marked as 'requirement met' in order for the stage requirements to be met) aka CNF.
      * @return A {@link List} of {@link List}s.
      */
     public List<List<Requirement>> getRequirements()

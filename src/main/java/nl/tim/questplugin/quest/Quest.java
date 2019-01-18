@@ -21,7 +21,6 @@ import nl.tim.questplugin.api.Requirement;
 import nl.tim.questplugin.api.Reward;
 import nl.tim.questplugin.api.Trigger;
 import nl.tim.questplugin.area.Area;
-import nl.tim.questplugin.player.QPlayer;
 import nl.tim.questplugin.quest.stage.Stage;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
