@@ -33,6 +33,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+//TODO: Add some method for quickly loading broken quests when a missing dependency was registered
+
 @Singleton
 public class QuestHandler
 {

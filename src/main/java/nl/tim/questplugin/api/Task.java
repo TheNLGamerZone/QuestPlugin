@@ -19,6 +19,7 @@ package nl.tim.questplugin.api;
 
 import nl.tim.questplugin.player.QPlayer;
 import nl.tim.questplugin.quest.CustomExtension;
+import nl.tim.questplugin.quest.ExtensionType;
 import nl.tim.questplugin.quest.Owner;
 import nl.tim.questplugin.quest.stage.Stage;
 import nl.tim.questplugin.storage.Storage;
@@ -53,17 +54,10 @@ public abstract class Task extends CustomExtension implements Listener, Owner
     @Override
     public Set<Storage.DataPair<String>> getData()
     {
-        Set<Storage.DataPair<String>> data = new HashSet<>();
+        Set<Storage.DataPair<String>> data = super.getData();
 
-        // Add task identifier
-        data.add(new Storage.DataPair<>(this.getUUID() + ".task", this.getIdentifier()));
-        data.add(new Storage.DataPair<>(this.getUUID() + ".stage", this.getStage().getUUID().toString()));
-
-        // Add configuration
-        Set<Storage.DataPair<String>> configuration = super.getData();
-
-        configuration.forEach(dp -> dp.prependKey(this.getUUID() + "."));
-        data.addAll(configuration);
+        // Add type and stage
+        data.add(new Storage.DataPair<>("type", ExtensionType.TASK.name()));
 
         return data;
     }

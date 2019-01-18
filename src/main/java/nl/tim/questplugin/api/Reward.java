@@ -18,11 +18,11 @@
 package nl.tim.questplugin.api;
 
 import nl.tim.questplugin.quest.CustomExtension;
+import nl.tim.questplugin.quest.ExtensionType;
 import nl.tim.questplugin.quest.Owner;
 import nl.tim.questplugin.storage.Storage;
 import org.bukkit.entity.Player;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -35,7 +35,7 @@ public abstract class Reward extends CustomExtension
 
     public abstract void giveReward(Player player);
 
-    protected UUID getParentUUID()
+    public UUID getParentUUID()
     {
         return this.getOwner().getUUID();
     }
@@ -48,16 +48,10 @@ public abstract class Reward extends CustomExtension
     @Override
     public Set<Storage.DataPair<String>> getData()
     {
-        Set<Storage.DataPair<String>> data = new HashSet<>();
+        Set<Storage.DataPair<String>> data = super.getData();
 
-        // Add reward
-        data.add(new Storage.DataPair<>(this.getUUID() + ".reward", this.getIdentifier()));
-
-        // Add configuration
-        Set<Storage.DataPair<String>> configuration = super.getData();
-
-        configuration.forEach(dp -> dp.prependKey(this.getUUID() + "."));
-        data.addAll(configuration);
+        // Add type
+        data.add(new Storage.DataPair<>("type", ExtensionType.REWARD.name()));
 
         return data;
     }

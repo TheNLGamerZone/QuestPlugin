@@ -57,7 +57,7 @@ public class AreaImageBuilder implements ImageBuilder<Area>
         .
          */
 
-        List<Storage.DataPair> dataPairs = new ArrayList<>();
+        List<Storage.DataPair<String>> dataPairs = new ArrayList<>();
 
         if (area.getRegions() == null)
         {
@@ -78,7 +78,7 @@ public class AreaImageBuilder implements ImageBuilder<Area>
     @Override
     public Area load(UUID uuid)
     {
-        List<Storage.DataPair> dataPairs = this.storage.load(uuid, Storage.DataType.AREA);
+        List<Storage.DataPair<String>> dataPairs = this.storage.load(uuid, Storage.DataType.AREA);
         Set<Region> regions = new HashSet<>();
 
         // Check if the UUID was valid

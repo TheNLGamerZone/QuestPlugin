@@ -23,6 +23,7 @@ import com.google.inject.name.Named;
 import nl.tim.questplugin.QuestPlugin;
 import nl.tim.questplugin.storage.ConfigHandler;
 import nl.tim.questplugin.storage.Storage;
+import nl.tim.questplugin.utils.StringUtils;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -51,29 +52,31 @@ public class FileStorage implements Storage
         QuestPlugin.getLog().info("Checking files");
 
         // Create all files
-        File areaFile = new File(storageLocation + File.separator +
-                DataType.AREA.getFilePath().replace("/", File.separator));
-        File playerFile = new File(storageLocation + File.separator +
-                DataType.PLAYER.getFilePath().replace("/", File.separator));
-        File questFile = new File(storageLocation + File.separator +
-                DataType.QUEST.getFilePath().replace("/", File.separator));
-        File regionFile = new File(storageLocation + File.separator +
-                DataType.REGION.getFilePath().replace("/", File.separator));
+        for (DataType dataType : DataType.values())
+        {
+            File dataFile = new File(storageLocation + File.separator + dataType.getFilePath().replace("/", File.separator));
 
-        // Check if all files exist
-        ConfigHandler.createFileIfNotExists(areaFile);
-        ConfigHandler.createFileIfNotExists(playerFile);
-        ConfigHandler.createFileIfNotExists(questFile);
-        ConfigHandler.createFileIfNotExists(regionFile);
+            ConfigHandler.createFileIfNotExists(dataFile);
+        }
 
         // Files will never fail me
         return true;
     }
 
+    @Override
+    public void close()
+    {
+        // Files don't need closing
+    }
+
     private FileConfiguration getFileConfig(DataType dataType)
     {
-        String path = dataType.getFilePath().replace("/", File.separator);
-        File dataFile = new File(this.storageLocation + File.separator + path);
+        if (dataType == null)
+        {
+            return null;
+        }
+
+        File dataFile = new File(this.storageLocation + File.separator + dataType.getFilePath().replace("/", File.separator));
         FileConfiguration fileConfiguration = new YamlConfiguration();
 
         // Check if file exists before we load it
@@ -125,22 +128,28 @@ public class FileStorage implements Storage
     }
 
     @Override
-    public void save(UUID uuid, DataType dataType, DataPair dataPair)
+    public void save(UUID uuid, DataType dataType, DataPair<String> dataPair)
     {
-        ArrayList<DataPair> dataPairs = new ArrayList<>();
+        ArrayList<DataPair<String>> dataPairs = new ArrayList<>();
 
         dataPairs.add(dataPair);
         this.save(uuid, dataType, dataPairs);
     }
 
     @Override
-    public void save(UUID uuid, DataType dataType, List<DataPair> dataPairs)
+    public void save(UUID uuid, DataType dataType, Collection<DataPair<String>> dataPairs)
     {
         /*
         All data will be saved in the appropriate file (indicated by DataType.getFilePath()) in the following format:
+
         uuid:
             dataPair.getKey():  dataPair.getData()
          */
+
+        if (uuid == null || dataType == null || dataPairs == null)
+        {
+            return;
+        }
 
         String uid = uuid.toString();
         String path = dataType.getFilePath().replace("/", File.separator);
@@ -201,13 +210,18 @@ public class FileStorage implements Storage
     }
 
     @Override
-    public List<DataPair> load(UUID uuid, DataType dataType)
+    public List<DataPair<String>> load(UUID uuid, DataType dataType)
     {
         FileConfiguration fileConfiguration = this.getFileConfig(dataType);
-        List<DataPair> dataPairs = new ArrayList<>();
+        List<DataPair<String>> dataPairs = new ArrayList<>();
 
         // Check if the file config could be loaded
         if (fileConfiguration == null)
+        {
+            return null;
+        }
+
+        if (uuid == null)
         {
             return null;
         }
@@ -220,7 +234,7 @@ public class FileStorage implements Storage
         {
             // Create data pairs and add to result
             String data = fileConfiguration.getString(uuid.toString() + "." + key);
-            DataPair dataPair = new DataPair<>(key, data);
+            DataPair<String> dataPair = new DataPair<>(key, data);
 
             dataPairs.add(dataPair);
         }
@@ -245,7 +259,7 @@ public class FileStorage implements Storage
         for (String key : fileConfiguration.getKeys(false))
         {
             // Check if the key is actually a UUID, if it is add it to the list
-            if (!key.matches("/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/"))
+            if (StringUtils.isUUID(key))
             {
                 uuidList.add(UUID.fromString(key));
             }

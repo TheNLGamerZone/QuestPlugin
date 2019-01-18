@@ -17,15 +17,16 @@
 
 package nl.tim.questplugin.quest;
 
-import nl.tim.questplugin.api.Configurable;
 import nl.tim.questplugin.player.PlayerHandler;
 import nl.tim.questplugin.player.QPlayer;
 import nl.tim.questplugin.storage.Saveable;
+import nl.tim.questplugin.storage.Storage;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.bukkit.entity.Player;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 public abstract class CustomExtension extends Configurable implements Saveable
@@ -112,6 +113,20 @@ public abstract class CustomExtension extends Configurable implements Saveable
     protected PlayerHandler getPlayerHandler()
     {
         return this.playerHandler;
+    }
+
+    @Override
+    public Set<Storage.DataPair<String>> getData()
+    {
+        Set<Storage.DataPair<String>> data = super.getData();
+
+        // Add id
+        data.add(new Storage.DataPair<>("id", this.getIdentifier()));
+
+        // Add owner
+        data.add(new Storage.DataPair<>("owner", this.getOwner().getUUID().toString()));
+
+        return data;
     }
 
     @Override

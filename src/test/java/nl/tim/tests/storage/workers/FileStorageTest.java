@@ -78,7 +78,7 @@ public class FileStorageTest
         fileStorage.init();
 
         // Check if all files were verified
-        int NUMBER_OF_FILES = 4;
+        int NUMBER_OF_FILES = Storage.DataType.values().length;
 
         PowerMockito.verifyStatic(times(NUMBER_OF_FILES));
         ConfigHandler.createFileIfNotExists(any(File.class));
@@ -107,7 +107,7 @@ public class FileStorageTest
 
             // Call save method
             UUID uuid = UUID.randomUUID();
-            List<Storage.DataPair> dataPairs = new ArrayList<>();
+            List<Storage.DataPair<String>> dataPairs = new ArrayList<>();
             dataPairs.add(new Storage.DataPair<>("key1", "data1"));
             dataPairs.add(new Storage.DataPair<>("key2", "data2"));
             dataPairs.add(new Storage.DataPair<>("key3", "data3"));

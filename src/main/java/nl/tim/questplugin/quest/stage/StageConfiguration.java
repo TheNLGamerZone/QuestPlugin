@@ -20,16 +20,16 @@ package nl.tim.questplugin.quest.stage;
 import nl.tim.questplugin.api.Requirement;
 import nl.tim.questplugin.api.Reward;
 import nl.tim.questplugin.api.Task;
-import org.apache.commons.collections4.MultiValuedMap;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class StageConfiguration
 {
     /* Can we get a F in the chat for the person (me) who has to write code to save+load all this */
     private Map<StageOption, Object> stageConfiguration;
     private Set<Task> tasks;
-    private MultiValuedMap<Task, Reward> taskRewards;
+    private List<Reward> taskRewards;
     private List<List<Requirement>> requirements;
     private List<Reward> stageStart;
     private List<Reward> stageRewards;
@@ -37,7 +37,7 @@ public class StageConfiguration
 
     public StageConfiguration(Map<StageOption, Object> stageConfiguration,
                               Set<Task> tasks,
-                              MultiValuedMap<Task, Reward> taskRewards,
+                              List<Reward> taskRewards,
                               List<List<Requirement>> requirements,
                               List<Reward> stageStart,
                               List<Reward> stageRewards,
@@ -90,7 +90,8 @@ public class StageConfiguration
      */
     public Collection<Reward> getRewardForTask(Task task)
     {
-        return this.taskRewards.get(task);
+        return this.taskRewards.stream().filter(reward -> reward.getParentUUID().equals(task.getUUID())).collect(
+                Collectors.toList());
     }
 
     public Map<StageOption, Object> getStageConfigurationMap()
@@ -98,7 +99,7 @@ public class StageConfiguration
         return this.stageConfiguration;
     }
 
-    public MultiValuedMap<Task, Reward> getTaskRewardsMap()
+    public List<Reward> getRewards()
     {
         return this.taskRewards;
     }

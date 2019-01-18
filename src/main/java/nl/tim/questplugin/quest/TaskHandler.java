@@ -90,6 +90,8 @@ public class TaskHandler
             return false;
         }
 
+        //TODO: Trigger initialization of quests that depended on this task
+
         return true;
     }
 
@@ -115,7 +117,7 @@ public class TaskHandler
     public CustomExtension buildExtension(Class<? extends CustomExtension> type,
                                           String identifier,
                                           UUID uuid,
-                                          Owner owner,
+                                          UUID ownerUUID,
                                           Map<String, Object> configuration)
     {
         Map<String, Class<? extends CustomExtension>> map = this.getMap(type);
@@ -123,7 +125,7 @@ public class TaskHandler
         // Check if map was found
         if (map == null)
         {
-            QuestPlugin.getLog().severe("Could not find base map for extension type '" + type.getSimpleName() + "'");
+            QuestPlugin.getLog().severe("Could not search base map for extension type '" + type.getSimpleName() + "'");
             return null;
         }
 
@@ -134,6 +136,8 @@ public class TaskHandler
         {
             // This is probably some third party extension that is not yet available, will return null so the quest gets marked as
             // broken. In case the extension is registered by another plugin it will be built later anyway
+            QuestPlugin.getLog().warning("Could not find extension id, maybe this is a third-party extension? " +
+                    "Will be loaded later if that is the case");
             return null;
         }
 
@@ -151,6 +155,31 @@ public class TaskHandler
             return null;
         }
 
+        // Get owner
+        Owner owner = null;
+
+        // First check if the owner is a quest or stage
+        owner = this.questPlugin.getQuestHandler().getQuestByUUID(ownerUUID);
+
+        if (owner == null)
+        {
+            owner = this.questPlugin.getQuestHandler().getStage(ownerUUID);
+        }
+
+        // Finally check for task
+        if (owner == null)
+        {
+            owner = this.getTask(ownerUUID);
+        }
+
+        // Check if owner was not found
+        if (owner == null)
+        {
+            QuestPlugin.getLog().warning("Owner with uuid '" + ownerUUID + "' was not found " +
+                    "for " + type.getSimpleName() + " (" + identifier + ")");
+            return null;
+        }
+
         // Register the basic stuff
         extension.register(uuid,
                 identifier,
@@ -159,6 +188,9 @@ public class TaskHandler
                 this.questPlugin.getQuestHandler(),
                 this.questPlugin.getPlayerHandler(),
                 configuration);
+
+        // Parse extension values
+        extension.parseSettings();
 
         // Return the extension
         return extension;

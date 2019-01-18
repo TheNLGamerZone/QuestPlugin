@@ -23,6 +23,7 @@ import nl.tim.questplugin.storage.Storage;
 
 import javax.inject.Singleton;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -45,16 +46,22 @@ public class SQLStorage implements Storage
     }
 
     @Override
-    public void save(UUID uuid, DataType dataType, DataPair dataPair)
+    public void close()
     {
-        ArrayList<DataPair> dataPairs = new ArrayList<>();
+
+    }
+
+    @Override
+    public void save(UUID uuid, DataType dataType, DataPair<String> dataPair)
+    {
+        ArrayList<DataPair<String>> dataPairs = new ArrayList<>();
 
         dataPairs.add(dataPair);
         this.save(uuid, dataType, dataPairs);
     }
 
     @Override
-    public void save(UUID uuid, DataType dataType, List<DataPair> dataPairs)
+    public void save(UUID uuid, DataType dataType, Collection<DataPair<String>> dataPairs)
     {
         System.out.println("SQL:" + uuid);
         System.out.println("SQL:" + dataType);
@@ -74,7 +81,7 @@ public class SQLStorage implements Storage
     }
 
     @Override
-    public List<DataPair> load(UUID uuid, DataType dataType)
+    public List<DataPair<String>> load(UUID uuid, DataType dataType)
     {
         return null;
     }

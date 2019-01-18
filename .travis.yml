@@ -7,8 +7,8 @@ deploy:
   provider: releases
   api_key:
     secure: bn2etxNHLmDaKcBd5fI03HuNBiz2e+9wXVzySKPcRWlvgY7XsXw6dT3EF8v8yS/+oMgRDKO9gLDGp2faVQuai12PWd2NAs/jQhXxTK4hTErDTIw22cBlmdnrg9GEEL3a1XP32ppEnwcsHMzfgXk7l23zrQXA5aJ81dGjoqjZDV4mZck6t1SwUlgqHN9HqCGjF4i3UnOdU7XukztV0QXaeD5/1LZa5+dviNHlDpXD9LQgTXk3YgLbeXG/gsDZ+8JGBqgNHtYe4AyYnKjGT9vamxbioR8GUEUidHPvQcDxkVauB8TOj164ko1UhHMHJJRnxS/wWOe643kZv5mIfx+6H+z9PS8LvSSTER6lmEcXhNILdqSt0gswq/w0cGuz339zbF/8XOmTtHue99Mgui7PqqiNd8LlYyG/lsu3IihHyqZ1Ouq+oYERlBsKAKFIsntSZhwkh6Z+oUbAxETK4bJ3KlwG3HpMhJlmTuZBwkqd5HUcUOEpXYVg7Ksq29uvUUAbYGvI1Cn3r7gQ9PETLDKXuxwScGuN6rNVMQKeoP2tdFFv1jRir1IDGU1gUeByUsuEvF131jcadWAFFHDpBDga6JRcPQ4MTXBuwaZTLkx0rL69rlttUx7RWscNiICTHmNmidiOmyScoVLU+1t/YrJVC7AFb+qv4zeF9VSrVBOZw4Q=
-  file: "/home/travis/build/TheNLGamerZone/QuestPlugin/server/plugins/QuestPlugin.jar"
+  file: "/home/travis/build/timanema/QuestPlugin/server/plugins/QuestPlugin.jar"
   skip_cleanup: true
   on:
-    repo: TheNLGamerZone/QuestPlugin
+    repo: timanema/QuestPlugin
     tags: true

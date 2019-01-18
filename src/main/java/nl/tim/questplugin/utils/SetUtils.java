@@ -59,4 +59,16 @@ public class SetUtils
 
         return searchedSet;
     }
+
+    public static <V> Set<Storage.DataPair<V>> prependKeysBulk(Set<Storage.DataPair<V>> pairs, String stringToPrepend)
+    {
+        pairs.forEach(dp -> dp.prependKey(stringToPrepend));
+        return pairs;
+    }
+
+    public static <V> Set<Storage.DataPair<V>> appendKeysBulk(Set<Storage.DataPair<V>> pairs, String stringToAppend)
+    {
+        pairs.forEach(dp -> dp.prependKey(stringToAppend));
+        return pairs;
+    }
 }

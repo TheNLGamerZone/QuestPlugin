@@ -69,7 +69,7 @@ public class RegionImageBuilder implements ImageBuilder<Region>
         .
          */
 
-        List<Storage.DataPair> locationDataPairs = new ArrayList<>();
+        List<Storage.DataPair<String>> locationDataPairs = new ArrayList<>();
         UUID uuid = region.getUUID();
 
         for (Location location : region.getLocations())
@@ -83,11 +83,11 @@ public class RegionImageBuilder implements ImageBuilder<Region>
             }
         }
 
-        List<Storage.DataPair> dataPairs = new ArrayList<>();
+        List<Storage.DataPair<String>> dataPairs = new ArrayList<>();
 
         // Add data
         dataPairs.add(new Storage.DataPair<>("type", region.getRegionFileIdentifier()));
-        dataPairs.add(new Storage.DataPair<>("ignore-z", region.heightIgnored()));
+        dataPairs.add(new Storage.DataPair<>("ignore-z", region.heightIgnored() + ""));
         dataPairs.add(new Storage.DataPair<>("radius",
                 region instanceof Sphere ? "" + ((Sphere) region).getRadius() : "-1"));
         dataPairs.addAll(locationDataPairs);
@@ -96,7 +96,7 @@ public class RegionImageBuilder implements ImageBuilder<Region>
         this.storage.save(uuid, Storage.DataType.REGION, dataPairs);
     }
 
-    private LinkedHashMap<String, Location> loadLocations(List<Storage.DataPair> dataPairs)
+    private LinkedHashMap<String, Location> loadLocations(List<Storage.DataPair<String>> dataPairs)
     {
         LinkedHashMap<String, Location> locations = new LinkedHashMap<>();
 
@@ -146,7 +146,7 @@ public class RegionImageBuilder implements ImageBuilder<Region>
     @Override
     public Region load(UUID uuid) {
         Region result = null;
-        List<Storage.DataPair> dataPairs = this.storage.load(uuid, Storage.DataType.REGION);
+        List<Storage.DataPair<String>> dataPairs = this.storage.load(uuid, Storage.DataType.REGION);
 
         // Check if the data pairs could be loaded and the uuid was valid
         if (dataPairs == null || dataPairs.size() == 0)

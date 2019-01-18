@@ -15,9 +15,9 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package nl.tim.questplugin.api;
+package nl.tim.questplugin.quest;
 
-import nl.tim.questplugin.QuestPlugin;
+import nl.tim.questplugin.api.InputType;
 import nl.tim.questplugin.storage.Saveable;
 import nl.tim.questplugin.storage.Storage;
 import org.apache.commons.lang3.BooleanUtils;
@@ -54,6 +54,14 @@ public abstract class Configurable implements Saveable
         }
     }
 
+    protected void parseSettings()
+    {
+        for (String setting : this.configurationValues.keySet())
+        {
+            this.insertSetting(setting, this.configurationValues.get(setting).toString(), true);
+        }
+    }
+
     public Object getSetting(String setting)
     {
         return this.configurationValues.getOrDefault(setting, null);
@@ -86,14 +94,18 @@ public abstract class Configurable implements Saveable
         return this.insertSetting(identifier, setting, true);
     }
 
+
+    public boolean isValidSettingType(String identifier, String setting)
+    {
+        return this.insertSetting(identifier, setting, false);
+    }
+
     private boolean insertSetting(String identifier, String setting, boolean insert)
     {
         InputType inputType = this.requiredType.get(identifier);
 
-        // Check if setting was valid
-        if (!this.isValidSettingType(identifier, setting))
+        if (inputType == null)
         {
-            QuestPlugin.getLog().warning("Trying to parse invalid setting '" + setting + "' to type " + inputType.name());
             return false;
         }
 
@@ -132,11 +144,6 @@ public abstract class Configurable implements Saveable
 
         // Shouldn't happen but I'll return false just in case
         return false;
-    }
-
-    public boolean isValidSettingType(String identifier, String setting)
-    {
-        return this.insertSetting(identifier, setting, false);
     }
 
     @Override

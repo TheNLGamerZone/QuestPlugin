@@ -45,12 +45,14 @@ public class QuestPlugin extends JavaPlugin
 
     private ConfigHandler configHandler;
 
+    // TODO: Maybe move these around some time, the amount of image builders keeps growing :(
     @Inject private AreaImageBuilder areaImageBuilder;
     @Inject private QuestImageBuilder questImageBuilder;
     @Inject private PlayerImageBuilder playerImageBuilder;
     @Inject private RegionImageBuilder regionImageBuilder;
     @Inject private StageImageBuilder stageImageBuilder;
     @Inject private StageConfigurationImageBuilder stageConfigurationImageBuilder;
+    @Inject private ExtensionImageBuilder extensionImageBuilder;
 
     @Inject private TaskHandler taskHandler;
     @Inject private QuestHandler questHandler;
@@ -104,7 +106,7 @@ public class QuestPlugin extends JavaPlugin
         }
 
         // Continue loading if storage was properly initialized
-
+        //TODO: Load quests here, maybe use a runnable to run quest init after third party plugins had the chance to register stuff?
 
         // Done with loading
         logger.info("QuestPlugin is enabled!");
@@ -118,6 +120,9 @@ public class QuestPlugin extends JavaPlugin
             // Storage wasn't loading, therefore nothing else is loaded
             return;
         }
+
+        // Close connections if any
+        this.storage.close();
 
         // Continue normal disabling
         logger.info("QuestPlugin is disabled!");
@@ -143,6 +148,7 @@ public class QuestPlugin extends JavaPlugin
         return logger;
     }
 
+    //TODO: Yep definitely have to move these around in the near future
     public TaskHandler getTaskHandler()
     {
         return this.taskHandler;
@@ -166,5 +172,20 @@ public class QuestPlugin extends JavaPlugin
     public RegionImageBuilder getRegionImageBuilder()
     {
         return this.regionImageBuilder;
+    }
+
+    public StageImageBuilder getStageImageBuilder()
+    {
+        return this.stageImageBuilder;
+    }
+
+    public StageConfigurationImageBuilder getStageConfigurationImageBuilder()
+    {
+        return this.stageConfigurationImageBuilder;
+    }
+
+    public ExtensionImageBuilder getExtensionImageBuilder()
+    {
+        return this.extensionImageBuilder;
     }
 }

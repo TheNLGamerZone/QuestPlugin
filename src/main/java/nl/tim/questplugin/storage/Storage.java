@@ -20,6 +20,7 @@ package nl.tim.questplugin.storage;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -31,7 +32,10 @@ public interface Storage
         PLAYER("data/players.yml", "data/player"),
         QUEST("data/quest.yml", "data/quest"),
         AREA("data/areas.yml", "data/area"),
-        REGION("data/regions.yml", "data/region");
+        REGION("data/regions.yml", "data/region"),
+        EXTENSION("data/extensions.yml", "data/extension"),
+        STAGE("data/stages.yml", "data/stage"),
+        STAGE_CONFIG("data/stage_configurations.yml", "data/stage_config");
 
         private String filePath;
         private String sqlTable;
@@ -136,12 +140,17 @@ public interface Storage
     boolean init();
 
     /**
+     * Will be ran on server shutdown, allows for connections to be closed etc
+     */
+    void close();
+
+    /**
      * Save one the given {@link DataPair}. Can be used to save one specific piece of data.
      * @param uuid {@link UUID} of the object
      * @param dataType {@link DataType} of object
      * @param dataPair {@link DataPair} to save
      */
-    void save(UUID uuid, DataType dataType, DataPair dataPair);
+    void save(UUID uuid, DataType dataType, DataPair<String> dataPair);
 
     /**
      * Save multiple {@link DataPair}s.
@@ -149,7 +158,7 @@ public interface Storage
      * @param dataType {@link DataType} of the object to save
      * @param dataPairs {@link DataPair}s to save
      */
-    void save(UUID uuid, DataType dataType, List<DataPair> dataPairs);
+    void save(UUID uuid, DataType dataType, Collection<DataPair<String>> dataPairs);
 
     /**
      * Removes data with given key
@@ -174,7 +183,7 @@ public interface Storage
      * @param dataType {@link DataType} of the objet
      * @return {@link List<DataPair>} containing all data of the object (will be empty when nothing was found).
      */
-    List<DataPair> load(UUID uuid, DataType dataType);
+    List<DataPair<String>> load(UUID uuid, DataType dataType);
 
     /**
      * Returns all UUID saved of the given {@link DataType}.

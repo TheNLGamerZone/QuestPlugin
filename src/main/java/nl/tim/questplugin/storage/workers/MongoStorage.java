@@ -21,6 +21,7 @@ import com.google.inject.Inject;
 import nl.tim.questplugin.QuestPlugin;
 import nl.tim.questplugin.storage.Storage;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
@@ -41,12 +42,18 @@ public class MongoStorage implements Storage
     }
 
     @Override
-    public void save(UUID uuid, DataType dataType, DataPair dataPair) {
+    public void close()
+    {
 
     }
 
     @Override
-    public void save(UUID uuid, DataType dataType, List<DataPair> dataPairs) {
+    public void save(UUID uuid, DataType dataType, DataPair<String> dataPair) {
+
+    }
+
+    @Override
+    public void save(UUID uuid, DataType dataType, Collection<DataPair<String>> dataPairs) {
 
     }
 
@@ -62,7 +69,7 @@ public class MongoStorage implements Storage
     }
 
     @Override
-    public List<DataPair> load(UUID uuid, DataType dataType) {
+    public List<DataPair<String>> load(UUID uuid, DataType dataType) {
         return null;
     }
 
