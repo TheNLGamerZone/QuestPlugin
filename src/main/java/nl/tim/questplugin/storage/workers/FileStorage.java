@@ -199,7 +199,7 @@ public class FileStorage implements Storage
         FileConfiguration fileConfiguration = this.getFileConfig(dataType);
 
         // Check if file config could be loaded
-        if (fileConfiguration == null)
+        if (fileConfiguration == null || uuid == null)
         {
             return null;
         }

@@ -18,7 +18,7 @@
 package nl.tim.questplugin.storage.image.builders;
 
 import nl.tim.questplugin.QuestPlugin;
-import nl.tim.questplugin.quest.Quest;
+import nl.tim.questplugin.quest.CustomExtension;
 import nl.tim.questplugin.quest.stage.Stage;
 import nl.tim.questplugin.quest.stage.StageConfiguration;
 import nl.tim.questplugin.storage.Storage;
@@ -48,6 +48,11 @@ public class StageImageBuilder implements ImageBuilder<Stage>
     @Override
     public void save(Stage stage)
     {
+        if (stage == null)
+        {
+            return;
+        }
+
         /*
         Format will be like this:
         <stage_uuid>:
@@ -73,6 +78,11 @@ public class StageImageBuilder implements ImageBuilder<Stage>
         List<Storage.DataPair<String>> dataPairs = this.storage.load(uuid, Storage.DataType.STAGE);
         String id = null;
         UUID quest = null;
+
+        if (dataPairs == null)
+        {
+            return null;
+        }
 
         // Loading data
         for (Storage.DataPair<String> dataPair : dataPairs)
@@ -111,6 +121,17 @@ public class StageImageBuilder implements ImageBuilder<Stage>
 
         // Create stage
         Stage stage = new Stage(id, quest, uuid, stageConfiguration, false, false, false);
+
+        // Create list of extensions
+        List<CustomExtension> extensions = new ArrayList<>(stage.getConfiguration().getRewards());
+
+        extensions.addAll(stage.getConfiguration().getTasks());
+        extensions.addAll(stage.getConfiguration().getStageRewards());
+        extensions.addAll(stage.getConfiguration().getStageStartRewards());
+
+        // Register stage as owner
+        extensions.forEach(ext -> ext.registerOwner(stage));
+        stage.getConfiguration().getRequirements().registerOwner(stage);
 
         // Update flags
         stage.checkBroken();

@@ -19,6 +19,7 @@ package nl.tim.questplugin.quest.wrappers;
 
 import nl.tim.questplugin.QuestPlugin;
 import nl.tim.questplugin.api.Requirement;
+import nl.tim.questplugin.quest.Owner;
 import nl.tim.questplugin.storage.Saveable;
 import nl.tim.questplugin.storage.Storage;
 import nl.tim.questplugin.utils.StringUtils;
@@ -74,6 +75,11 @@ public class RequirementWrapper implements Saveable
     public List<List<Requirement>> getRequirements()
     {
         return this.requirements;
+    }
+
+    public void registerOwner(Owner owner)
+    {
+        this.requirements.forEach(group -> group.forEach(req -> req.registerOwner(owner)));
     }
 
     public static RequirementWrapper load(QuestPlugin questPlugin, Collection<Storage.DataPair<String>> dataPairs)

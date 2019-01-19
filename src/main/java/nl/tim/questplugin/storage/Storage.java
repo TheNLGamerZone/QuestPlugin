@@ -29,13 +29,13 @@ public interface Storage
 {
     enum DataType
     {
-        PLAYER("data/players.yml", "data/player"),
-        QUEST("data/quest.yml", "data/quest"),
-        AREA("data/areas.yml", "data/area"),
-        REGION("data/regions.yml", "data/region"),
-        EXTENSION("data/extensions.yml", "data/extension"),
-        STAGE("data/stages.yml", "data/stage"),
-        STAGE_CONFIG("data/stage_configurations.yml", "data/stage_config");
+        PLAYER("data/players.yml", "player"),
+        QUEST("data/quest.yml", "quest"),
+        AREA("data/areas.yml", "area"),
+        REGION("data/regions.yml", "region"),
+        EXTENSION("data/extensions.yml", "extension"),
+        STAGE("data/stages.yml", "stage"),
+        STAGE_CONFIG("data/stage_configurations.yml", "stage_config");
 
         private String filePath;
         private String sqlTable;

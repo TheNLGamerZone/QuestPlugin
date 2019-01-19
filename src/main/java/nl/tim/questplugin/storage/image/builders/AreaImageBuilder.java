@@ -44,6 +44,10 @@ public class AreaImageBuilder implements ImageBuilder<Area>
     @Override
     public void save(Area area)
     {
+        if (area == null)
+        {
+            return;
+        }
         /*
         Areas will be saved in the following format:
         <uuid>:

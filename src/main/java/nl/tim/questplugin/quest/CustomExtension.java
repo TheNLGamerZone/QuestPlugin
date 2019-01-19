@@ -50,7 +50,6 @@ public abstract class CustomExtension extends Configurable implements Saveable
 
     void register(UUID uuid,
                   String identifier,
-                  Owner owner,
                   TaskHandler taskHandler,
                   QuestHandler questHandler,
                   PlayerHandler playerHandler,
@@ -58,11 +57,18 @@ public abstract class CustomExtension extends Configurable implements Saveable
     {
         this.uuid = uuid;
         this.identifier = identifier;
-        this.owner = owner;
         this.taskHandler = taskHandler;
         this.questHandler = questHandler;
         this.playerHandler = playerHandler;
         this.copySettings(settings);
+    }
+
+    public void registerOwner(Owner owner)
+    {
+        if (this.owner == null)
+        {
+            this.owner = owner;
+        }
     }
 
     protected void init()
@@ -122,9 +128,6 @@ public abstract class CustomExtension extends Configurable implements Saveable
 
         // Add id
         data.add(new Storage.DataPair<>("id", this.getIdentifier()));
-
-        // Add owner
-        data.add(new Storage.DataPair<>("owner", this.getOwner().getUUID().toString()));
 
         return data;
     }

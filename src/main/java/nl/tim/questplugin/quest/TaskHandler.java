@@ -117,7 +117,6 @@ public class TaskHandler
     public CustomExtension buildExtension(Class<? extends CustomExtension> type,
                                           String identifier,
                                           UUID uuid,
-                                          UUID ownerUUID,
                                           Map<String, Object> configuration)
     {
         Map<String, Class<? extends CustomExtension>> map = this.getMap(type);
@@ -155,35 +154,9 @@ public class TaskHandler
             return null;
         }
 
-        // Get owner
-        Owner owner = null;
-
-        // First check if the owner is a quest or stage
-        owner = this.questPlugin.getQuestHandler().getQuestByUUID(ownerUUID);
-
-        if (owner == null)
-        {
-            owner = this.questPlugin.getQuestHandler().getStage(ownerUUID);
-        }
-
-        // Finally check for task
-        if (owner == null)
-        {
-            owner = this.getTask(ownerUUID);
-        }
-
-        // Check if owner was not found
-        if (owner == null)
-        {
-            QuestPlugin.getLog().warning("Owner with uuid '" + ownerUUID + "' was not found " +
-                    "for " + type.getSimpleName() + " (" + identifier + ")");
-            return null;
-        }
-
         // Register the basic stuff
         extension.register(uuid,
                 identifier,
-                owner,
                 this,
                 this.questPlugin.getQuestHandler(),
                 this.questPlugin.getPlayerHandler(),

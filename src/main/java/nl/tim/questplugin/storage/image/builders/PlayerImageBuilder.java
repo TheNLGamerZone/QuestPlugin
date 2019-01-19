@@ -41,8 +41,11 @@ public class PlayerImageBuilder implements ImageBuilder<QPlayer>
     }
 
     @Override
-    public void save(QPlayer qPlayer) {
-
+    public void save(QPlayer player) {
+        if (player == null)
+        {
+            return;
+        }
     }
 
     @Override

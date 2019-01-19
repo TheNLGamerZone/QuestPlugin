@@ -48,6 +48,11 @@ public class ExtensionImageBuilder implements ImageBuilder<CustomExtension>
     @Override
     public void save(CustomExtension customExtension)
     {
+        if (customExtension == null)
+        {
+            return;
+        }
+
         // Save extension
         this.storage.save(customExtension.getUUID(), Storage.DataType.EXTENSION, customExtension.getData());
     }
@@ -60,7 +65,6 @@ public class ExtensionImageBuilder implements ImageBuilder<CustomExtension>
         // Determine extension type first
         String type = null;
         String id = null;
-        UUID ownerUUID = null;
         Map<String, Object> config = new HashMap<>();
 
         for (Storage.DataPair<String> dataPair : dataPairs)
@@ -74,9 +78,6 @@ public class ExtensionImageBuilder implements ImageBuilder<CustomExtension>
             } else if (key.equals("id"))
             {
                 id = data;
-            } else if (key.equals("owner") && StringUtils.isUUID(data))
-            {
-                ownerUUID = UUID.fromString(data);
             } else if (key.contains("configuration"))
             {
                 config.put(key, data);
@@ -87,7 +88,7 @@ public class ExtensionImageBuilder implements ImageBuilder<CustomExtension>
         }
 
         // Check if any required data was not found
-        if (type == null || id == null || ownerUUID == null)
+        if (type == null || id == null)
         {
             QuestPlugin.getLog().warning("Could not load all required information for extension '" + uuid + "'");
             return null;
@@ -102,6 +103,6 @@ public class ExtensionImageBuilder implements ImageBuilder<CustomExtension>
             return null;
         }
 
-        return this.questPlugin.getTaskHandler().buildExtension(extensionType.getClazz(), id, uuid, ownerUUID, config);
+        return this.questPlugin.getTaskHandler().buildExtension(extensionType.getClazz(), id, uuid, config);
     }
 }

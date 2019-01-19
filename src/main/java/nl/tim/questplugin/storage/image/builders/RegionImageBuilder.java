@@ -49,6 +49,11 @@ public class RegionImageBuilder implements ImageBuilder<Region>
     @Override
     public void save(Region region)
     {
+        if (region == null)
+        {
+            return;
+        }
+
         /*
         Regions will be saved in the following format:
         <uuid>:

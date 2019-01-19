@@ -39,6 +39,7 @@ public class Quest implements Owner
 
     private boolean areaLocked;
     private boolean replayable;
+    private boolean listProgress; //TODO: Implement this, but it will toggle the gw2 style quests
 
     // Some flags
     private boolean broken;
@@ -46,7 +47,7 @@ public class Quest implements Owner
     private boolean branching;
     private boolean sequential;
 
-    protected Quest(UUID uuid, 
+    public Quest(UUID uuid,
                     Area questArea,
                     LinkedList<Stage> questStages,
                     Set<Reward> rewards,
@@ -71,21 +72,6 @@ public class Quest implements Owner
         this.branching = branching;
         this.sequential = sequential;
         this.broken = broken;
-    }
-
-    public Quest(UUID uuid,
-                 Area questArea,
-                 LinkedList<Stage> questStages,
-                 Set<Reward> rewards,
-                 Set<Trigger> triggers,
-                 RequirementWrapper requirements,
-                 boolean areaLocked,
-                 boolean replayable,
-                 boolean hidden,
-                 boolean branching,
-                 boolean sequential)
-    {
-        this(uuid, questArea, questStages, rewards, triggers, requirements, areaLocked, replayable, hidden, branching, sequential, false);
     }
 
     public UUID getUUID()

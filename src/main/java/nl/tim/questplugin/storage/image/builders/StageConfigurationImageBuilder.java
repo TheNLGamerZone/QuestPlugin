@@ -18,7 +18,6 @@
 package nl.tim.questplugin.storage.image.builders;
 
 import nl.tim.questplugin.QuestPlugin;
-import nl.tim.questplugin.api.Requirement;
 import nl.tim.questplugin.api.Reward;
 import nl.tim.questplugin.api.Task;
 import nl.tim.questplugin.quest.stage.StageConfiguration;
@@ -28,9 +27,6 @@ import nl.tim.questplugin.storage.Storage;
 import nl.tim.questplugin.storage.StorageProvider;
 import nl.tim.questplugin.storage.image.ImageBuilder;
 import nl.tim.questplugin.utils.StringUtils;
-import org.apache.commons.collections4.MultiValuedMap;
-import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
-import org.apache.commons.lang3.math.NumberUtils;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -52,6 +48,10 @@ public class StageConfigurationImageBuilder implements ImageBuilder<StageConfigu
     @Override
     public void save(StageConfiguration configuration)
     {
+        if (configuration == null)
+        {
+            return;
+        }
         /*
         Format will be like this:
         <parent_uuid>:
@@ -117,7 +117,7 @@ public class StageConfigurationImageBuilder implements ImageBuilder<StageConfigu
     }
 
     private void appendAndSaveStages(List<Storage.DataPair<String>> savedStageConfiguration,
-                                     Set<Task> keys)
+                                     Collection<Task> keys)
     {
         keys.forEach(task -> {
             savedStageConfiguration.add(new Storage.DataPair<>(
@@ -128,7 +128,7 @@ public class StageConfigurationImageBuilder implements ImageBuilder<StageConfigu
 
     private void appendAndSaveRewards(List<Storage.DataPair<String>> savedStageConfiguration,
                                       String rewardType,
-                                      List<Reward> keys)
+                                      Collection<Reward> keys)
     {
         keys.forEach(reward -> {
             savedStageConfiguration.add(new Storage.DataPair<>(
