@@ -23,6 +23,7 @@ import nl.tim.questplugin.api.Reward;
 import nl.tim.questplugin.api.Task;
 import nl.tim.questplugin.quest.stage.StageConfiguration;
 import nl.tim.questplugin.quest.stage.StageOption;
+import nl.tim.questplugin.quest.wrappers.RequirementWrapper;
 import nl.tim.questplugin.storage.Storage;
 import nl.tim.questplugin.storage.StorageProvider;
 import nl.tim.questplugin.storage.image.ImageBuilder;
@@ -137,17 +138,14 @@ public class StageConfigurationImageBuilder implements ImageBuilder<StageConfigu
     }
 
     private void appendAndSaveRequirements(List<Storage.DataPair<String>> savedStageConfiguration,
-                                           List<List<Requirement>> keys)
+                                           RequirementWrapper requirements)
     {
-        for (int i = 0; i < keys.size(); i++)
-        {
-            for (Requirement requirement : keys.get(i))
-            {
-                savedStageConfiguration.add(new Storage.DataPair<>(
-                        "requirements." + i + "." + requirement.getUUID(), "REQUIREMENT"));
-                this.questPlugin.getExtensionImageBuilder().save(requirement);
-            }
-        }
+        // Append data
+        savedStageConfiguration.addAll(requirements.getData());
+
+        // Save all requirements
+        requirements.getRequirements().forEach(group ->
+                group.forEach(requirement -> this.questPlugin.getExtensionImageBuilder().save(requirement)));
     }
 
     @Override
@@ -163,14 +161,14 @@ public class StageConfigurationImageBuilder implements ImageBuilder<StageConfigu
         }
 
         // Do some work beforehand
-        List<Storage.DataPair> stageConfigurationPairs = new ArrayList<>();
-        List<Storage.DataPair> taskPairs = new ArrayList<>();
-        List<Storage.DataPair> taskRewardsPairs = new ArrayList<>();
-        List<Storage.DataPair> requirementPairs = new ArrayList<>();
-        List<Storage.DataPair> stageStartPairs = new ArrayList<>();
-        List<Storage.DataPair> stageRewardPairs = new ArrayList<>();
+        List<Storage.DataPair<String>> stageConfigurationPairs = new ArrayList<>();
+        List<Storage.DataPair<String>> taskPairs = new ArrayList<>();
+        List<Storage.DataPair<String>> taskRewardsPairs = new ArrayList<>();
+        List<Storage.DataPair<String>> requirementPairs = new ArrayList<>();
+        List<Storage.DataPair<String>> stageStartPairs = new ArrayList<>();
+        List<Storage.DataPair<String>> stageRewardPairs = new ArrayList<>();
 
-        for (Storage.DataPair dataPair : dataPairs)
+        for (Storage.DataPair<String> dataPair : dataPairs)
         {
             String key = dataPair.getKey();
 
@@ -201,7 +199,7 @@ public class StageConfigurationImageBuilder implements ImageBuilder<StageConfigu
         Map<StageOption, Object> stageConfiguration = this.loadStageConfig(stageConfigurationPairs);
         Set<Task> tasks = this.loadTasks(taskPairs);
         List<Reward> taskRewards = this.loadReward(taskRewardsPairs, "task_rewards");
-        List<List<Requirement>> requirements = this.loadRequirements(requirementPairs);
+        RequirementWrapper requirements = this.loadRequirements(requirementPairs);
         List<Reward> stageStart = this.loadReward(stageStartPairs, "stage_start_rewards");
         List<Reward> stageRewards = this.loadReward(stageRewardPairs, "stage_finish_rewards");
 
@@ -235,7 +233,7 @@ public class StageConfigurationImageBuilder implements ImageBuilder<StageConfigu
         return null;
     }
 
-    private Map<StageOption, Object> loadStageConfig(List<Storage.DataPair> dataPairs)
+    private Map<StageOption, Object> loadStageConfig(List<Storage.DataPair<String>> dataPairs)
     {
         Map<StageOption, Object> result = new HashMap<>();
 
@@ -259,7 +257,7 @@ public class StageConfigurationImageBuilder implements ImageBuilder<StageConfigu
         return result;
     }
 
-    private Set<Task> loadTasks(List<Storage.DataPair> dataPairs)
+    private Set<Task> loadTasks(List<Storage.DataPair<String>> dataPairs)
     {
         Set<Task> result = new HashSet<>();
 
@@ -292,7 +290,7 @@ public class StageConfigurationImageBuilder implements ImageBuilder<StageConfigu
         return result;
     }
 
-    private List<Reward> loadReward(List<Storage.DataPair> dataPairs, String type)
+    private List<Reward> loadReward(List<Storage.DataPair<String>> dataPairs, String type)
     {
         List<Reward> result = new ArrayList<>(dataPairs.size());
 
@@ -325,47 +323,15 @@ public class StageConfigurationImageBuilder implements ImageBuilder<StageConfigu
         return result;
     }
 
-    private List<List<Requirement>> loadRequirements(List<Storage.DataPair> dataPairs)
+    private RequirementWrapper loadRequirements(List<Storage.DataPair<String>> dataPairs)
     {
-        List<List<Requirement>> result = new ArrayList<>();
-        MultiValuedMap<Integer, Requirement> map = new ArrayListValuedHashMap<>();
+        RequirementWrapper result = RequirementWrapper.load(this.questPlugin, dataPairs);
 
-        // Load all requirements into their groups
-        for (Storage.DataPair dataPair : dataPairs)
+        // Check if something went wrong
+        if (result == null)
         {
-            String id = StringUtils.stripIncluding(dataPair.getKey(), "requirements", true);
-            String groupIDRaw = id.split(".")[0];
-            String rawUUID = id.substring(groupIDRaw.length() + 1);
-
-            // Check if both group number and uuid are valid
-            if (!NumberUtils.isNumber(groupIDRaw) || !StringUtils.isUUID(rawUUID))
-            {
-                QuestPlugin.getLog().warning("Requirement (" + rawUUID + " in " + groupIDRaw + ") failed to load: " +
-                        "either group id or uuid is invalid!");
-                continue;
-            }
-
-            Integer groupID = Integer.valueOf(groupIDRaw);
-            UUID uuid = UUID.fromString(rawUUID);
-
-            // Load requirement
-            Requirement requirement = (Requirement) this.questPlugin.getExtensionImageBuilder().load(uuid);
-
-            // Check if requirement failed to load
-            if (requirement == null)
-            {
-                QuestPlugin.getLog().warning("Requirements failed to load!");
-                return null;
-            }
-
-            // Add requirement to group
-            map.put(groupID, requirement);
-        }
-
-        // Divide into groups
-        for (Integer groupID : map.keySet())
-        {
-            result.add(new ArrayList<>(map.get(groupID)));
+            QuestPlugin.getLog().warning("Requirements failed to load!");
+            return null;
         }
 
         return result;

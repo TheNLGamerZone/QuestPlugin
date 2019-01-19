@@ -26,7 +26,6 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.bukkit.entity.Player;
 
-import java.util.List;
 import java.util.UUID;
 
 public class Stage implements Owner
@@ -148,27 +147,7 @@ public class Stage implements Owner
 
     public boolean checkRequirements(Player player)
     {
-        //TODO: Maybe use requirement wrappers instead, so they can be more easily saved/loaded/worked with
-        for (List<Requirement> requirementGroup : this.configuration.getRequirements())
-        {
-            boolean requirementMet = false;
-
-            for (Requirement requirement : requirementGroup)
-            {
-                if (requirement.requirementMet(player))
-                {
-                    requirementMet = true;
-                    break;
-                }
-            }
-
-            if (!requirementMet)
-            {
-                return false;
-            }
-        }
-
-        return true;
+        return this.configuration.getRequirements().checkRequirements(player);
     }
 
     public UUID getUUID()

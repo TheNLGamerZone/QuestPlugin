@@ -20,6 +20,7 @@ package nl.tim.questplugin.quest.stage;
 import nl.tim.questplugin.api.Requirement;
 import nl.tim.questplugin.api.Reward;
 import nl.tim.questplugin.api.Task;
+import nl.tim.questplugin.quest.wrappers.RequirementWrapper;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -30,7 +31,7 @@ public class StageConfiguration
     private Map<StageOption, Object> stageConfiguration;
     private Set<Task> tasks;
     private List<Reward> taskRewards;
-    private List<List<Requirement>> requirements;
+    private RequirementWrapper requirements;
     private List<Reward> stageStart;
     private List<Reward> stageRewards;
     private UUID parentUUID;
@@ -38,7 +39,7 @@ public class StageConfiguration
     public StageConfiguration(Map<StageOption, Object> stageConfiguration,
                               Set<Task> tasks,
                               List<Reward> taskRewards,
-                              List<List<Requirement>> requirements,
+                              RequirementWrapper requirements,
                               List<Reward> stageStart,
                               List<Reward> stageRewards,
                               UUID parentUUID)
@@ -78,7 +79,7 @@ public class StageConfiguration
      * (i.e. all maps in the list have to be marked as 'requirement met' in order for the stage requirements to be met) aka CNF.
      * @return A {@link List} of {@link List}s.
      */
-    public List<List<Requirement>> getRequirements()
+    public RequirementWrapper getRequirements()
     {
         return this.requirements;
     }
