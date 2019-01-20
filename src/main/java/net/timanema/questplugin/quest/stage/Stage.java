@@ -74,8 +74,8 @@ public class Stage implements Owner
     {
         //TODO: Add log messages
 
-        // Check stage rewards for branching
-        if (this.configuration.getStageStartRewards().stream().anyMatch(rw -> rw instanceof StageLinkReward))
+        // Check config status & stage rewards for branching
+        if (this.configuration == null || this.configuration.getStageStartRewards().stream().anyMatch(rw -> rw instanceof StageLinkReward))
         {
             // Stages cannot have branches as start reward
             this.broken = true;

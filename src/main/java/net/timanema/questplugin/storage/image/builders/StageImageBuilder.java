@@ -113,11 +113,11 @@ public class StageImageBuilder implements ImageBuilder<Stage>
         StageConfiguration stageConfiguration = this.questPlugin.getStageConfigurationImageBuilder().load(uuid);
 
         // Check if anything was not loaded
-        if (id == null || quest == null || stageConfiguration == null)
+        if (id == null || stageConfiguration == null)
         {
             // Log and return broken stage
             QuestPlugin.getLog().warning("Stage failed to load: stage configuration/id/parent could not be loaded!");
-            return new Stage(id, quest, uuid, null, true, false, false);
+            return null;
         }
 
         // Create stage
