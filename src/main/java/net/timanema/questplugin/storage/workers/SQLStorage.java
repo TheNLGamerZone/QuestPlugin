@@ -49,20 +49,32 @@ public class SQLStorage implements Storage
     }
 
     @Override
-    public void save(UUID uuid, DataType dataType, DataPair<String> dataPair)
+    public void save(UUID uuid, DataType dataType, DataPair dataPair)
     {
-        ArrayList<DataPair<String>> dataPairs = new ArrayList<>();
+        ArrayList<DataPair> dataPairs = new ArrayList<>();
 
         dataPairs.add(dataPair);
         this.save(uuid, dataType, dataPairs);
     }
 
     @Override
-    public void save(UUID uuid, DataType dataType, Collection<DataPair<String>> dataPairs)
+    public void save(UUID uuid, DataType dataType, Collection<DataPair> dataPairs)
     {
         System.out.println("SQL:" + uuid);
         System.out.println("SQL:" + dataType);
         System.out.println("SQL:" + dataPairs);
+    }
+
+    @Override
+    public void saveAsList(UUID uuid, DataType dataType, DataPair<Collection<String>> dataPairs)
+    {
+
+    }
+
+    @Override
+    public void saveAsInteger(UUID uuid, DataType dataType, Collection<DataPair<Integer>> dataPairs)
+    {
+
     }
 
     @Override
@@ -78,7 +90,7 @@ public class SQLStorage implements Storage
     }
 
     @Override
-    public List<DataPair<String>> load(UUID uuid, DataType dataType)
+    public List<DataPair> load(UUID uuid, DataType dataType)
     {
         return null;
     }

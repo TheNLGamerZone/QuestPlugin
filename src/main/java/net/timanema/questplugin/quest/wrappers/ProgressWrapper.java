@@ -22,6 +22,7 @@ import net.timanema.questplugin.storage.Storage;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -73,10 +74,18 @@ public class ProgressWrapper implements Saveable
         this.progress = progress;
     }
 
-    @Override
-    public Set<Storage.DataPair<String>> getData()
+    public static ProgressWrapper load(Collection<Storage.DataPair<String>> dataPairs)
     {
-        Set<Storage.DataPair<String>> data = new HashSet<>();
+        String rawUUID = dataPairs.iterator().next().getKey().split("\\.")[0];
+
+        //TODO: Finish
+        return null;
+    }
+
+    @Override
+    public Set<Storage.DataPair> getData()
+    {
+        Set<Storage.DataPair> data = new HashSet<>();
 
         // Save uuids
         data.add(new Storage.DataPair<>(this.uuid + ".quest", this.questUUID.toString()));

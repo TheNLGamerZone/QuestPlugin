@@ -22,14 +22,15 @@ import com.google.inject.Singleton;
 import net.timanema.questplugin.QuestPlugin;
 import net.timanema.questplugin.storage.Storage;
 import net.timanema.questplugin.storage.StorageProvider;
-import net.timanema.questplugin.utils.LocationSerializer;
 import net.timanema.questplugin.area.Cube;
 import net.timanema.questplugin.area.Polygon;
 import net.timanema.questplugin.area.Region;
 import net.timanema.questplugin.area.Sphere;
 import net.timanema.questplugin.storage.image.ImageBuilder;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
+import net.timanema.questplugin.utils.LocationWithID;
+import net.timanema.questplugin.utils.StringUtils;
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import java.util.*;
 
@@ -61,93 +62,37 @@ public class RegionImageBuilder implements ImageBuilder<Region>
             ignore-z: <boolean>
             radius: <radius - -1 if region is not a sphere>
             locations:
-                <location_hash>:
-                    world-uuid: <world-uuid>
-                    x: <x>
-                    y: <y>
-                    z: <z>
-                 .
-                 .
-                 .
-        .
-        .
-        .
+                - <location_uuid>
+                - <location_uuid>
          */
 
-        List<Storage.DataPair<String>> locationDataPairs = new ArrayList<>();
-        UUID uuid = region.getUUID();
+        List<Storage.DataPair> result = new ArrayList<>(region.getLocations().size() + 3);
 
-        for (Location location : region.getLocations())
-        {
-            String locationHash = "" + location.hashCode();
-
-            for (Storage.DataPair<String> locationData : LocationSerializer.serializeLocation(location))
-            {
-                locationData.prependKey("locations." + locationHash + ".");
-                locationDataPairs.add(locationData);
-            }
-        }
-
-        List<Storage.DataPair<String>> dataPairs = new ArrayList<>();
-
-        // Add data
-        dataPairs.add(new Storage.DataPair<>("type", region.getRegionFileIdentifier()));
-        dataPairs.add(new Storage.DataPair<>("ignore-z", region.heightIgnored() + ""));
-        dataPairs.add(new Storage.DataPair<>("radius",
-                region instanceof Sphere ? "" + ((Sphere) region).getRadius() : "-1"));
-        dataPairs.addAll(locationDataPairs);
+        result.add(new Storage.DataPair<>("type", region.getRegionFileIdentifier()));
+        result.add(new Storage.DataPair<>("ignore-z", region.heightIgnored() + ""));
+        result.add(new Storage.DataPair<>("radius", region instanceof Sphere ? "" + ((Sphere) region).getRadius() : "-1"));
+        result.add(this.saveLocations(region));
 
         // Save data pairs
-        this.storage.save(uuid, Storage.DataType.REGION, dataPairs);
+        this.storage.save(region.getUUID(), Storage.DataType.REGION, result);
     }
 
-    private LinkedHashMap<String, Location> loadLocations(List<Storage.DataPair<String>> dataPairs)
+    private Storage.DataPair<Collection> saveLocations(Region region)
     {
-        LinkedHashMap<String, Location> locations = new LinkedHashMap<>();
+        Set<String> ids = new HashSet<>();
 
-        // Load data
-        for (Storage.DataPair dataPair : dataPairs)
+        for (LocationWithID loc : region.getLocations())
         {
-            if (dataPair.getKey().contains("locations"))
-            {
-                String strippedKey = dataPair.getKey().substring(dataPair.getKey().indexOf("locations") + "locations.".length());
-                String[] arr = strippedKey.split("\\.");
-                String hashCode = arr[0];
-                Location loc = locations.getOrDefault(hashCode, new Location(null, 0, 0, 0));
-
-                switch (strippedKey.split("\\.")[1])
-                {
-                    case "world-uuid":
-                        loc.setWorld(Bukkit.getWorld(UUID.fromString(dataPair.getData().toString())));
-                        break;
-                    case "x":
-                        loc.setX(Double.valueOf(dataPair.getData().toString()));
-                        break;
-                    case "y":
-                        loc.setY(Double.valueOf(dataPair.getData().toString()));
-                        break;
-                    case "z":
-                        loc.setZ(Double.valueOf(dataPair.getData().toString()));
-                        break;
-                    default:
-                        QuestPlugin.getLog().warning("Unknown location key supplied when constructing region: " +
-                                dataPair.getKey());
-                        return null;
-                }
-
-                // Update hash map
-                locations.put(hashCode, loc);
-            }
+            ids.add(loc.getUUID().toString());
+            this.questPlugin.getLocationImageBuilder().save(loc);
         }
 
-        return locations;
+        return new Storage.DataPair<>("locations", ids);
     }
-
 
     @Override
     public Region load(UUID uuid) {
-        Region result = null;
-        List<Storage.DataPair<String>> dataPairs = this.storage.load(uuid, Storage.DataType.REGION);
+        List<Storage.DataPair> dataPairs = this.storage.load(uuid, Storage.DataType.REGION);
 
         // Check if the data pairs could be loaded and the uuid was valid
         if (dataPairs == null || dataPairs.size() == 0)
@@ -158,36 +103,82 @@ public class RegionImageBuilder implements ImageBuilder<Region>
         String type = null;
         boolean ignoreHeight = false;
         double radius = -1;
-        LinkedHashMap<String, Location> locations = loadLocations(dataPairs);
+        Storage.DataPair<Collection> locationPair = null;
 
-        // Load data
         for (Storage.DataPair dataPair : dataPairs)
         {
-            if (dataPair.getKey().contains("type"))
+            String key  = dataPair.getKey();
+
+            // Check if this is a collection
+            if (dataPair.isCollection())
             {
-                type = dataPair.getData().toString();
-            } else if (dataPair.getKey().contains("ignore-z"))
+                Storage.DataPair<Collection> collectionPair = new Storage.DataPair<>(key,
+                        (Collection) dataPair.getData());
+
+                if (!key.equals("locations"))
+                {
+                    QuestPlugin.getLog().warning("Unknown key-value pair supplied when constructing region: '" +
+                            dataPair.getKey() + ": " + dataPair.getData() + "'");
+                    return null;
+                }
+
+                locationPair = collectionPair;
+            } else
             {
-                ignoreHeight = Boolean.valueOf(dataPair.getData().toString());
-            } else if (dataPair.getKey().contains("radius"))
-            {
-                radius = Double.valueOf(dataPair.getData().toString());
-            } else if (!dataPair.getKey().contains("locations"))
-            {
-                QuestPlugin.getLog().warning("Unknown key-value pair supplied when constructing region: '" +
-                        dataPair.getKey() + ": " + dataPair.getData() + "'");
-                return null;
+                Storage.DataPair<String> stringPair = new Storage.DataPair<>(key, (String) dataPair.getData());
+                String data = stringPair.getData();
+
+                switch (key)
+                {
+                    case "type":
+                        type = data;
+                        break;
+                    case "ignore-z":
+                        if (BooleanUtils.toBooleanObject(data) != null)
+                        {
+                            ignoreHeight = BooleanUtils.toBoolean(data);
+                        }
+                        break;
+                    case "radius":
+                        if (NumberUtils.isNumber(data))
+                        {
+                            radius = Double.parseDouble(data);
+                        }
+                        break;
+                    default:
+                        QuestPlugin.getLog().warning("Unknown key-value pair supplied when constructing region: '" +
+                                dataPair.getKey() + ": " + dataPair.getData() + "'");
+                        return null;
+                }
             }
         }
 
-        // Check if all values where found
-        if (type == null || locations == null ||  locations.size() < 1)
+        // Load locations
+        LinkedHashSet<LocationWithID> locations = this.loadLocations(locationPair);
+
+        // Check if a value was not found
+        if (type == null || locationPair == null || locations == null || locations.size() == 0)
         {
             QuestPlugin.getLog().warning("Invalid region data supplied for region with ID '" + uuid + "'");
             return null;
         }
 
         // Create region
+        Region region = this.createRegion(uuid, type, ignoreHeight, radius, locations);
+
+        // Check if region could not be loaded for some reason
+        if (region == null)
+        {
+            QuestPlugin.getLog().warning("Region '" + uuid + "' could not be loaded!");
+        }
+
+        return region;
+    }
+
+    private Region createRegion(UUID uuid, String type, boolean ignoreHeight, double radius, LinkedHashSet<LocationWithID> locations)
+    {
+        Region result;
+
         switch (type)
         {
             case Region.ID_CUBE:
@@ -199,7 +190,7 @@ public class RegionImageBuilder implements ImageBuilder<Region>
                     return null;
                 }
 
-                Iterator<Location> iter = locations.values().iterator();
+                Iterator<LocationWithID> iter = locations.iterator();
 
                 result = new Cube(uuid, iter.next(), iter.next(), ignoreHeight);
                 break;
@@ -213,7 +204,7 @@ public class RegionImageBuilder implements ImageBuilder<Region>
                     return null;
                 }
 
-                result = new Sphere(uuid, locations.values().iterator().next(), radius, ignoreHeight);
+                result = new Sphere(uuid, locations.iterator().next(), radius, ignoreHeight);
                 break;
             case Region.ID_POLYGON:
                 // Check if required info was fetched
@@ -225,7 +216,7 @@ public class RegionImageBuilder implements ImageBuilder<Region>
                     return null;
                 }
 
-                result = new Polygon(uuid, new LinkedHashSet<>(locations.values()), ignoreHeight);
+                result = new Polygon(uuid, locations, ignoreHeight);
                 break;
             default:
                 QuestPlugin.getLog().warning("Invalid region type supplied: " + type);
@@ -233,5 +224,33 @@ public class RegionImageBuilder implements ImageBuilder<Region>
         }
 
         return result;
+    }
+
+    private LinkedHashSet<LocationWithID> loadLocations(Storage.DataPair<Collection> dataPair)
+    {
+        LinkedHashSet<LocationWithID> locations = new LinkedHashSet<>();
+
+        if (dataPair == null)
+        {
+            return locations;
+        }
+
+        for (Object rawID : dataPair.getData())
+        {
+            if (StringUtils.isUUID(rawID))
+            {
+                LocationWithID loc = this.questPlugin.getLocationImageBuilder().load(UUID.fromString(rawID.toString()));
+
+                if (loc == null)
+                {
+                    QuestPlugin.getLog().warning("Location " + rawID + " failed to load, this might impact how the region will behave!");
+                    continue;
+                }
+
+                locations.add(loc);
+            }
+        }
+
+        return locations;
     }
 }

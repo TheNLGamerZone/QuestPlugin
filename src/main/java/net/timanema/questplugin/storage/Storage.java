@@ -32,15 +32,16 @@ public interface Storage
         REGION("data/regions.yml", "region"),
         EXTENSION("data/extensions.yml", "extension"),
         STAGE("data/stages.yml", "stage"),
-        STAGE_CONFIG("data/stage_configurations.yml", "stage_config");
+        STAGE_CONFIG("data/stage_configurations.yml", "stage_config"),
+        LOCATION("data/locations.yml", "location");
 
         private String filePath;
-        private String sqlTable;
+        private String name;
 
-        DataType(String filePath, String sqlTable)
+        DataType(String filePath, String name)
         {
             this.filePath = filePath;
-            this.sqlTable = sqlTable;
+            this.name = name;
         }
 
         public String getFilePath()
@@ -48,9 +49,9 @@ public interface Storage
             return this.filePath;
         }
 
-        public String getSqlTable()
+        public String getName()
         {
-            return this.sqlTable;
+            return this.name;
         }
 
         @Override
@@ -58,7 +59,7 @@ public interface Storage
         {
             return new ToStringBuilder(this)
                     .append(filePath)
-                    .append(sqlTable)
+                    .append(name)
                     .toString();
         }
     }
@@ -66,7 +67,7 @@ public interface Storage
     class DataPair<V>
     {
         private String key;
-        private V data;
+        private final V data;
 
         public DataPair(String key, V data){
             this.key = key;
@@ -91,6 +92,11 @@ public interface Storage
         public V getData()
         {
             return this.data;
+        }
+
+        public boolean isCollection()
+        {
+            return data instanceof Collection;
         }
 
         @Override
@@ -155,7 +161,11 @@ public interface Storage
      * @param dataType {@link DataType} of the object to save
      * @param dataPairs {@link DataPair}s to save
      */
-    void save(UUID uuid, DataType dataType, Collection<DataPair<String>> dataPairs);
+    void save(UUID uuid, DataType dataType, Collection<DataPair> dataPairs);
+
+    void saveAsList(UUID uuid, DataType dataType, DataPair<Collection<String>> dataPairs);
+
+    void saveAsInteger(UUID uuid, DataType dataType, Collection<DataPair<Integer>> dataPairs);
 
     /**
      * Removes data with given key
@@ -180,7 +190,7 @@ public interface Storage
      * @param dataType {@link DataType} of the objet
      * @return {@link List<DataPair>} containing all data of the object (will be empty when nothing was found).
      */
-    List<DataPair<String>> load(UUID uuid, DataType dataType);
+    List<DataPair> load(UUID uuid, DataType dataType);
 
     /**
      * Returns all UUID saved of the given {@link DataType}.

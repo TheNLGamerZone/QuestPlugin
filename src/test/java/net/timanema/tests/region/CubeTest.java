@@ -18,6 +18,7 @@
 package net.timanema.tests.region;
 
 import net.timanema.questplugin.area.Cube;
+import net.timanema.questplugin.utils.LocationWithID;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.junit.Before;
@@ -37,11 +38,11 @@ public class CubeTest
     private Object testObject;
     private Cube regularCube;
     private Cube testCube;
-    private Location locationInCube;
-    private Location locationNotInCube;
-    private Location locationInCubeIgnoreHeight;
-    private Location locationNotInCubeIgnoreHeight;
-    private Location locationInOtherWorld;
+    private LocationWithID locationInCube;
+    private LocationWithID locationNotInCube;
+    private LocationWithID locationInCubeIgnoreHeight;
+    private LocationWithID locationNotInCubeIgnoreHeight;
+    private LocationWithID locationInOtherWorld;
 
     @Before
     public void setup()
@@ -57,14 +58,14 @@ public class CubeTest
         testObject = new Object();
 
         // Creating locations
-        Location location1 = new Location(world1, 1, 5, 0);
-        Location location2 = new Location(world1, 7.32, 24.2, 25);
+        LocationWithID location1 = new LocationWithID(UUID.randomUUID(), world1, 1, 5, 0);
+        LocationWithID location2 = new LocationWithID(UUID.randomUUID(), world1, 7.32, 24.2, 25);
 
-        locationInCube = new Location(world1, 5, 10, 12);
-        locationNotInCube = new Location(world1, 5, 10, 26);
-        locationInCubeIgnoreHeight = new Location(world1, 2, 17, -3);
-        locationNotInCubeIgnoreHeight = new Location(world1, 5, -2, -12.3);
-        locationInOtherWorld = new Location(world2, 5, 10 , 12);
+        locationInCube = new LocationWithID(UUID.randomUUID(), world1, 5, 10, 12);
+        locationNotInCube = new LocationWithID(UUID.randomUUID(), world1, 5, 10, 26);
+        locationInCubeIgnoreHeight = new LocationWithID(UUID.randomUUID(), world1, 2, 17, -3);
+        locationNotInCubeIgnoreHeight = new LocationWithID(UUID.randomUUID(), world1, 5, -2, -12.3);
+        locationInOtherWorld = new LocationWithID(UUID.randomUUID(), world2, 5, 10 , 12);
 
         // Creating objects
         UUID uuid = UUID.randomUUID();
@@ -107,7 +108,7 @@ public class CubeTest
     {
         assertFalse("These objects are not equal (hashcode)",
                 regularCube.hashCode() ==
-                        new Cube(UUID.randomUUID(), new Location(null, 0, 0, 0), new Location(null, 0, 0, 1)).hashCode());
+                        new Cube(UUID.randomUUID(), new LocationWithID(UUID.randomUUID(), null, 0, 0, 0), new LocationWithID(UUID.randomUUID(), null, 0, 0, 1)).hashCode());
     }
 
     @Test

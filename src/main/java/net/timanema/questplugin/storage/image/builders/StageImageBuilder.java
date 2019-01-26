@@ -59,7 +59,7 @@ public class StageImageBuilder implements ImageBuilder<Stage>
             id: <identifier>
             quest: <quest_uuid>
          */
-        List<Storage.DataPair<String>> dataPairs = new ArrayList<>();
+        List<Storage.DataPair> dataPairs = new ArrayList<>();
 
         // Add ID and parent
         dataPairs.add(new Storage.DataPair<>("id", stage.getIdentifier()));
@@ -75,7 +75,7 @@ public class StageImageBuilder implements ImageBuilder<Stage>
     @Override
     public Stage load(UUID uuid)
     {
-        List<Storage.DataPair<String>> dataPairs = this.storage.load(uuid, Storage.DataType.STAGE);
+        List<Storage.DataPair> dataPairs = this.storage.load(uuid, Storage.DataType.STAGE);
         String id = null;
         UUID quest = null;
 
@@ -85,9 +85,9 @@ public class StageImageBuilder implements ImageBuilder<Stage>
         }
 
         // Loading data
-        for (Storage.DataPair<String> dataPair : dataPairs)
+        for (Storage.DataPair dataPair : dataPairs)
         {
-            String data = dataPair.getData();
+            String data = dataPair.getData().toString();
 
             switch (dataPair.getKey())
             {

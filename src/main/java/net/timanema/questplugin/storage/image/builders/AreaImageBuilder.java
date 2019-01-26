@@ -18,11 +18,14 @@
 package net.timanema.questplugin.storage.image.builders;
 
 import net.timanema.questplugin.QuestPlugin;
+import net.timanema.questplugin.quest.Quest;
 import net.timanema.questplugin.storage.Storage;
 import net.timanema.questplugin.storage.StorageProvider;
 import net.timanema.questplugin.area.Area;
 import net.timanema.questplugin.area.Region;
 import net.timanema.questplugin.storage.image.ImageBuilder;
+import net.timanema.questplugin.utils.LocationWithID;
+import net.timanema.questplugin.utils.StringUtils;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -51,17 +54,10 @@ public class AreaImageBuilder implements ImageBuilder<Area>
         /*
         Areas will be saved in the following format:
         <uuid>:
-            <region_uuid>: REGION
-            <region_uuid>: REGION
-            .
-            .
-            .
-        .
-        .
-        .
+            regions:
+                - <region_uuid>
+                - <region_uuid>
          */
-
-        List<Storage.DataPair<String>> dataPairs = new ArrayList<>();
 
         if (area.getRegions() == null)
         {
@@ -69,12 +65,17 @@ public class AreaImageBuilder implements ImageBuilder<Area>
             return;
         }
 
+        Set<String> ids = new HashSet<>();
+
         // Save regions
         for (Region region : area.getRegions())
         {
-            dataPairs.add(new Storage.DataPair<>(region.getUUID().toString(), "REGION"));
+            ids.add(region.getUUID().toString());
             this.questPlugin.getRegionImageBuilder().save(region);
         }
+
+        List<Storage.DataPair> dataPairs = new ArrayList<>(
+                Collections.singletonList(new Storage.DataPair<>("regions", ids)));
 
         this.storage.save(area.getUUID(), Storage.DataType.AREA, dataPairs);
     }
@@ -82,8 +83,8 @@ public class AreaImageBuilder implements ImageBuilder<Area>
     @Override
     public Area load(UUID uuid)
     {
-        List<Storage.DataPair<String>> dataPairs = this.storage.load(uuid, Storage.DataType.AREA);
-        Set<Region> regions = new HashSet<>();
+        List<Storage.DataPair> dataPairs = this.storage.load(uuid, Storage.DataType.AREA);
+        Set<Region> regions = null;
 
         // Check if the UUID was valid
         if (dataPairs == null || dataPairs.isEmpty())
@@ -95,20 +96,62 @@ public class AreaImageBuilder implements ImageBuilder<Area>
         // Load regions
         for (Storage.DataPair dataPair : dataPairs)
         {
-            // Load region
-            Region region = this.questPlugin.getRegionImageBuilder().load(UUID.fromString(dataPair.getKey()));
+            String key = dataPair.getKey();
 
-            // Check if region failed to load properly
-            if (region == null)
+            if (dataPair.isCollection())
             {
-                QuestPlugin.getLog().warning("Area with ID '" + uuid + "' could not load, because region '" + dataPair.getKey() + "' failed to load");
-                return null;
-            }
+                Storage.DataPair<Collection> collectionPair = new Storage.DataPair<>(key,
+                        (Collection) dataPair.getData());
 
-            // Add region to set
-            regions.add(region);
+                // Check if this is a valid data pair
+                if (!key.equals("regions"))
+                {
+                    QuestPlugin.getLog().warning("Unknown data type received when constructing area: " + key);
+                    continue;
+                }
+
+                regions = this.loadRegions(collectionPair);
+            }
+        }
+
+        // Check if regions weren't loaded
+        if (regions == null)
+        {
+            QuestPlugin.getLog().warning("Could not find regions for area " + uuid);
+            return null;
         }
 
         return new Area(uuid, regions);
+    }
+
+    private Set<Region> loadRegions(Storage.DataPair<Collection> dataPair)
+    {
+        Set<Region> regions = new HashSet<>();
+
+        if (dataPair == null)
+        {
+            return regions;
+        }
+
+        for (Object rawID : dataPair.getData())
+        {
+            if (StringUtils.isUUID(rawID))
+            {
+                // Load region
+                Region region = this.questPlugin.getRegionImageBuilder().load(UUID.fromString(rawID.toString()));
+
+                // Check if region failed to load properly
+                if (region == null)
+                {
+                    QuestPlugin.getLog().warning("Area with ID '" + rawID + "' could not load, because region '" + dataPair.getKey() + "' failed to load");
+                    return null;
+                }
+
+                // Add region to set
+                regions.add(region);
+            }
+        }
+
+        return regions;
     }
 }

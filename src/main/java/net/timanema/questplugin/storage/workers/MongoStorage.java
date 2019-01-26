@@ -54,7 +54,19 @@ public class MongoStorage implements Storage
     }
 
     @Override
-    public void save(UUID uuid, DataType dataType, Collection<DataPair<String>> dataPairs) {
+    public void save(UUID uuid, DataType dataType, Collection<DataPair> dataPairs) {
+
+    }
+
+    @Override
+    public void saveAsList(UUID uuid, DataType dataType, DataPair<Collection<String>> dataPairs)
+    {
+
+    }
+
+    @Override
+    public void saveAsInteger(UUID uuid, DataType dataType, Collection<DataPair<Integer>> dataPairs)
+    {
 
     }
 
@@ -70,7 +82,7 @@ public class MongoStorage implements Storage
     }
 
     @Override
-    public List<DataPair<String>> load(UUID uuid, DataType dataType) {
+    public List<DataPair> load(UUID uuid, DataType dataType) {
         return null;
     }
 

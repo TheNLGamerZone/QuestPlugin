@@ -58,7 +58,7 @@ public class StorageTest
     @Test
     public void datapair_equals_other_type()
     {
-        assertFalse("A datapair is not equal to a string!", testPair.equals(new String()));
+        assertFalse("A datapair is not equal to a string!", testPair.equals(""));
     }
 
     @Test
@@ -102,6 +102,6 @@ public class StorageTest
     @Test
     public void datatype_get_sqltable()
     {
-        assertEquals("getSqlTable() should return the correct filepath!","area", Storage.DataType.AREA.getSqlTable());
+        assertEquals("getName() should return the correct filepath!","area", Storage.DataType.AREA.getName());
     }
 }

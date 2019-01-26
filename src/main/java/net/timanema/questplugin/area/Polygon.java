@@ -17,6 +17,7 @@
 
 package net.timanema.questplugin.area;
 
+import net.timanema.questplugin.utils.LocationWithID;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.bukkit.Location;
@@ -28,7 +29,7 @@ import java.util.UUID;
 
 public class Polygon extends Region
 {
-    private LinkedHashSet<Location> locationSet;
+    private LinkedHashSet<LocationWithID> locationSet;
 
     private double xMin = Integer.MAX_VALUE;
     private double xMax = Integer.MIN_VALUE;
@@ -81,12 +82,12 @@ public class Polygon extends Region
         }
     }
 
-    public Polygon(UUID uuid, LinkedHashSet<Location> locationSet)
+    public Polygon(UUID uuid, LinkedHashSet<LocationWithID> locationSet)
     {
         this(uuid, locationSet, false);
     }
 
-    public Polygon(UUID uuid, LinkedHashSet<Location> locationSet, boolean ignoreHeight)
+    public Polygon(UUID uuid, LinkedHashSet<LocationWithID> locationSet, boolean ignoreHeight)
     {
         super(ID_POLYGON, uuid, null, ignoreHeight);
 
@@ -227,7 +228,7 @@ public class Polygon extends Region
     }
 
     @Override
-    public LinkedHashSet<Location> getLocations()
+    public LinkedHashSet<LocationWithID> getLocations()
     {
         return this.locationSet;
     }

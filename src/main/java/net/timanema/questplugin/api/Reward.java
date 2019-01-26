@@ -46,9 +46,9 @@ public abstract class Reward extends CustomExtension
     }
 
     @Override
-    public Set<Storage.DataPair<String>> getData()
+    public Set<Storage.DataPair> getData()
     {
-        Set<Storage.DataPair<String>> data = super.getData();
+        Set<Storage.DataPair> data = super.getData();
 
         // Add type
         data.add(new Storage.DataPair<>("type", ExtensionType.REWARD.name()));

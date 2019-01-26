@@ -107,7 +107,7 @@ public class FileStorageTest
 
             // Call save method
             UUID uuid = UUID.randomUUID();
-            List<Storage.DataPair<String>> dataPairs = new ArrayList<>();
+            List<Storage.DataPair> dataPairs = new ArrayList<>();
             dataPairs.add(new Storage.DataPair<>("key1", "data1"));
             dataPairs.add(new Storage.DataPair<>("key2", "data2"));
             dataPairs.add(new Storage.DataPair<>("key3", "data3"));

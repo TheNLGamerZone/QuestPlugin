@@ -60,17 +60,17 @@ public class ExtensionImageBuilder implements ImageBuilder<CustomExtension>
     @Override
     public CustomExtension load(UUID uuid)
     {
-        List<Storage.DataPair<String>> dataPairs = this.storage.load(uuid, Storage.DataType.EXTENSION);
+        List<Storage.DataPair> dataPairs = this.storage.load(uuid, Storage.DataType.EXTENSION);
 
         // Determine extension type first
         String type = null;
         String id = null;
         Map<String, Object> config = new HashMap<>();
 
-        for (Storage.DataPair<String> dataPair : dataPairs)
+        for (Storage.DataPair dataPair : dataPairs)
         {
             String key = dataPair.getKey();
-            String data = dataPair.getData();
+            String data = dataPair.getData().toString();
 
             if (key.equals("type"))
             {

@@ -17,6 +17,7 @@
 
 package net.timanema.questplugin.area;
 
+import net.timanema.questplugin.utils.LocationWithID;
 import org.bukkit.Location;
 import org.bukkit.World;
 
@@ -80,5 +81,5 @@ public abstract class Region
 
     public abstract int hashCode();
 
-    public abstract LinkedHashSet<Location> getLocations();
+    public abstract LinkedHashSet<LocationWithID> getLocations();
 }

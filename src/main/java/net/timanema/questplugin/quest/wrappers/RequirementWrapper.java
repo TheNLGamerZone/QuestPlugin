@@ -82,63 +82,72 @@ public class RequirementWrapper implements Saveable
         this.requirements.forEach(group -> group.forEach(req -> req.registerOwner(owner)));
     }
 
-    public static RequirementWrapper load(QuestPlugin questPlugin, Collection<Storage.DataPair<String>> dataPairs)
+    public static RequirementWrapper load(QuestPlugin questPlugin, Collection<Storage.DataPair<Collection>> dataPairs)
     {
         List<List<Requirement>> result = new ArrayList<>();
-        MultiValuedMap<Integer, Requirement> map = new ArrayListValuedHashMap<>();
 
-        // Load all requirements into their groups
-        for (Storage.DataPair dataPair : dataPairs)
+        if (dataPairs != null)
         {
-            String id = StringUtils.stripIncluding(dataPair.getKey(), "requirements", true);
-            String groupIDRaw = id.split("\\.")[0];
-            String rawUUID = id.substring(groupIDRaw.length() + 1);
-
-            // Check if both group number and uuid are valid
-            if (!NumberUtils.isNumber(groupIDRaw) || !StringUtils.isUUID(rawUUID))
+            // Load all requirements into their groups
+            for (Storage.DataPair<Collection> dataPair : dataPairs)
             {
-                QuestPlugin.getLog().warning("Requirement (" + rawUUID + " in " + groupIDRaw + ") failed to load: " +
-                        "either group id or uuid is invalid!");
-                continue;
+                String id = StringUtils.stripIncluding(dataPair.getKey(), "requirements", true);
+                String groupIDRaw = id.split("\\.")[0];
+
+                // Check if group number is invalid
+                if (!NumberUtils.isNumber(groupIDRaw))
+                {
+                    QuestPlugin.getLog().warning(
+                            "Requirement group " + groupIDRaw + " failed to load: " + groupIDRaw + " is not a number");
+                    continue;
+                }
+
+                List<Requirement> requirements = new ArrayList<>(dataPair.getData().size());
+
+                for (Object rawID : dataPair.getData())
+                {
+                    // Check if id is not a uuid
+                    if (!StringUtils.isUUID(rawID.toString()))
+                    {
+                        QuestPlugin.getLog().warning("Requirement " + rawID + " failed to load: invalid UUID");
+                        continue;
+                    }
+
+                    UUID uuid = UUID.fromString(rawID.toString());
+                    Requirement requirement = (Requirement) questPlugin.getExtensionImageBuilder().load(uuid);
+
+                    // Check if it failed to load
+                    if (requirement == null)
+                    {
+                        return null;
+                    }
+
+                    requirements.add(requirement);
+                }
+
+                // Add requirements list
+                result.add(requirements);
             }
-
-            Integer groupID = Integer.valueOf(groupIDRaw);
-            UUID uuid = UUID.fromString(rawUUID);
-
-            // Load requirement
-            Requirement requirement = (Requirement) questPlugin.getExtensionImageBuilder().load(uuid);
-
-            // Check if requirement failed to load
-            if (requirement == null)
-            {
-                return null;
-            }
-
-            // Add requirement to group
-            map.put(groupID, requirement);
-        }
-
-        // Divide into groups
-        for (Integer groupID : map.keySet())
-        {
-            result.add(new ArrayList<>(map.get(groupID)));
         }
 
         return new RequirementWrapper(result);
     }
 
     @Override
-    public Set<Storage.DataPair<String>> getData()
+    public Set<Storage.DataPair> getData()
     {
-        Set<Storage.DataPair<String>> data = new HashSet<>();
+        Set<Storage.DataPair> data = new HashSet<>();
 
         for (int i = 0; i < this.requirements.size(); i++)
         {
+            Set<String> ids = new HashSet<>();
+
             for (Requirement requirement : this.requirements.get(i))
             {
-                data.add(new Storage.DataPair<>("requirements." + i + "." + requirement.getUUID(),
-                        "REQUIREMENT"));
+                ids.add(requirement.getUUID().toString());
             }
+
+            data.add(new Storage.DataPair<>("requirements." + i, ids));
         }
 
         return data;

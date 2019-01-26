@@ -128,16 +128,16 @@ public class FileStorage implements Storage
     }
 
     @Override
-    public void save(UUID uuid, DataType dataType, DataPair<String> dataPair)
+    public void save(UUID uuid, DataType dataType, DataPair dataPair)
     {
-        ArrayList<DataPair<String>> dataPairs = new ArrayList<>();
+        ArrayList<DataPair> dataPairs = new ArrayList<>();
 
         dataPairs.add(dataPair);
         this.save(uuid, dataType, dataPairs);
     }
 
     @Override
-    public void save(UUID uuid, DataType dataType, Collection<DataPair<String>> dataPairs)
+    public void save(UUID uuid, DataType dataType, Collection<DataPair> dataPairs)
     {
         /*
         All data will be saved in the appropriate file (indicated by DataType.getFilePath()) in the following format:
@@ -187,10 +187,22 @@ public class FileStorage implements Storage
     }
 
     @Override
+    public void saveAsList(UUID uuid, DataType dataType, DataPair<Collection<String>> dataPairs)
+    {
+        // Not needed in file based storage, will be done in save()
+    }
+
+    @Override
+    public void saveAsInteger(UUID uuid, DataType dataType, Collection<DataPair<Integer>> dataPairs)
+    {
+        //TODO: Implement
+    }
+
+    @Override
     public void remove(UUID uuid, DataType dataType, String key)
     {
         // We can delete k/v pairs by just updating the value to null
-        this.save(uuid, dataType, new DataPair<String>(key, null));
+        this.save(uuid, dataType, new DataPair<>(key, null));
     }
 
     @Override
@@ -204,16 +216,23 @@ public class FileStorage implements Storage
             return null;
         }
 
-        String result = fileConfiguration.getString(uuid.toString() + "." + key);
+        String path = uuid.toString() + "." + key;
 
-        return new DataPair<>(key, result);
+        // Check for collection
+        if (fileConfiguration.isList(path))
+        {
+            return new DataPair<>(key, fileConfiguration.getList(path));
+        } else
+        {
+            return new DataPair<>(key, fileConfiguration.getString(path));
+        }
     }
 
     @Override
-    public List<DataPair<String>> load(UUID uuid, DataType dataType)
+    public List<DataPair> load(UUID uuid, DataType dataType)
     {
         FileConfiguration fileConfiguration = this.getFileConfig(dataType);
-        List<DataPair<String>> dataPairs = new ArrayList<>();
+        List<DataPair> dataPairs = new ArrayList<>();
 
         // Check if the file config could be loaded
         if (fileConfiguration == null)
@@ -233,7 +252,15 @@ public class FileStorage implements Storage
         for (String key : allKeys)
         {
             // Create data pairs and add to result
-            String data = fileConfiguration.getString(key);
+            Object data;
+
+            if (fileConfiguration.isList(key))
+            {
+                data = fileConfiguration.getList(key);
+            } else
+            {
+                data = fileConfiguration.getString(key);
+            }
 
             // Remove uuid if found
             if (!key.equals(uuid.toString()))
@@ -241,7 +268,7 @@ public class FileStorage implements Storage
                 key = StringUtils.stripIncluding(key, uuid.toString(), true);
             }
 
-            DataPair<String> dataPair = new DataPair<>(key, data);
+            DataPair dataPair = new DataPair<>(key, data);
 
             dataPairs.add(dataPair);
         }

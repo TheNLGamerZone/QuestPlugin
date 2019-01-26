@@ -140,16 +140,15 @@ public abstract class Configurable implements Saveable
                     this.configurationValues.put(identifier, setting);
                 }
                 return true;
+            default:
+                return false;
         }
-
-        // Shouldn't happen but I'll return false just in case
-        return false;
     }
 
     @Override
-    public Set<Storage.DataPair<String>> getData()
+    public Set<Storage.DataPair> getData()
     {
-        Set<Storage.DataPair<String>> data = new HashSet<>();
+        Set<Storage.DataPair> data = new HashSet<>();
 
         // Add configuration
         for (String setting : this.getConfigurationValues().keySet())

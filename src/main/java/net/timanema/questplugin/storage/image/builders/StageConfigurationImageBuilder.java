@@ -57,34 +57,29 @@ public class StageConfigurationImageBuilder implements ImageBuilder<StageConfigu
         <parent_uuid>:
             stage_config:
                 <config_option>: <value>
-                .
-                .
-            task:
-                <task_uuid>: TASK
-                .
-                .
+                <config_option>: <value>
+            tasks:
+                - <task_uuid>
+                - <task_uuid>
             task_rewards:
-                <reward_uuid>: REWARD
-                .
-                .
+                - <reward_uuid>
+                - <reward_uuid>
             requirements:
                 <group_id>:
-                    <requirement_uuid>: REQUIREMENT
-                    .
-                    .
-                 .
-                 .
+                    - <requirement_uuid>
+                    - <requirement_uuid>
+                <group_id>:
+                    - <requirement_uuid>
+                    - <requirement_uuid>
             stage_start_rewards:
-                <reward_uuid>: REWARD
-                .
-                .
+                - <reward_uuid>
+                - <reward_uuid>
             stage_finish_rewards:
-                <reward_uuid>: REWARD
-                .
-                .
+                - <reward_uuid>
+                - <reward_uuid>
          */
 
-        List<Storage.DataPair<String>> savedStageConfiguration = new ArrayList<>();
+        List<Storage.DataPair> savedStageConfiguration = new ArrayList<>();
 
         // Save stage configuration options
         this.appendStageConfiguration(savedStageConfiguration, configuration.getStageConfigurationMap());
@@ -108,7 +103,7 @@ public class StageConfigurationImageBuilder implements ImageBuilder<StageConfigu
         this.storage.save(configuration.getParentUUID(), Storage.DataType.STAGE_CONFIG, savedStageConfiguration);
     }
 
-    private void appendStageConfiguration(List<Storage.DataPair<String>> savedStageConfiguration,
+    private void appendStageConfiguration(List<Storage.DataPair> savedStageConfiguration,
                                           Map<StageOption, Object> keys)
     {
         keys.keySet().forEach(option -> savedStageConfiguration.add(
@@ -116,28 +111,34 @@ public class StageConfigurationImageBuilder implements ImageBuilder<StageConfigu
                                 keys.get(option).toString())));
     }
 
-    private void appendAndSaveStages(List<Storage.DataPair<String>> savedStageConfiguration,
+    private void appendAndSaveStages(List<Storage.DataPair> savedStageConfiguration,
                                      Collection<Task> keys)
     {
+        Set<String> ids = new HashSet<>();
+
         keys.forEach(task -> {
-            savedStageConfiguration.add(new Storage.DataPair<>(
-                    "task." + task.getUUID(), "TASK"));
+            ids.add(task.getUUID().toString());
             this.questPlugin.getExtensionImageBuilder().save(task);
         });
+
+        savedStageConfiguration.add(new Storage.DataPair<>("tasks", ids));
     }
 
-    private void appendAndSaveRewards(List<Storage.DataPair<String>> savedStageConfiguration,
+    private void appendAndSaveRewards(List<Storage.DataPair> savedStageConfiguration,
                                       String rewardType,
                                       Collection<Reward> keys)
     {
+        Set<String> ids = new HashSet<>();
+
         keys.forEach(reward -> {
-            savedStageConfiguration.add(new Storage.DataPair<>(
-                    rewardType + "." + reward.getUUID(), "REWARD"));
+            ids.add(reward.getUUID().toString());
             this.questPlugin.getExtensionImageBuilder().save(reward);
         });
+
+        savedStageConfiguration.add(new Storage.DataPair<>(rewardType, ids));
     }
 
-    private void appendAndSaveRequirements(List<Storage.DataPair<String>> savedStageConfiguration,
+    private void appendAndSaveRequirements(List<Storage.DataPair> savedStageConfiguration,
                                            RequirementWrapper requirements)
     {
         // Append data
@@ -151,7 +152,7 @@ public class StageConfigurationImageBuilder implements ImageBuilder<StageConfigu
     @Override
     public StageConfiguration load(UUID uuid)
     {
-        List<Storage.DataPair<String>> dataPairs = this.storage.load(uuid, Storage.DataType.STAGE_CONFIG);
+        List<Storage.DataPair> dataPairs = this.storage.load(uuid, Storage.DataType.STAGE_CONFIG);
 
         // Check if the uuid was valid
         if (dataPairs == null || dataPairs.isEmpty())
@@ -162,46 +163,66 @@ public class StageConfigurationImageBuilder implements ImageBuilder<StageConfigu
 
         // Do some work beforehand
         List<Storage.DataPair<String>> stageConfigurationPairs = new ArrayList<>();
-        List<Storage.DataPair<String>> taskPairs = new ArrayList<>();
-        List<Storage.DataPair<String>> taskRewardsPairs = new ArrayList<>();
-        List<Storage.DataPair<String>> requirementPairs = new ArrayList<>();
-        List<Storage.DataPair<String>> stageStartPairs = new ArrayList<>();
-        List<Storage.DataPair<String>> stageRewardPairs = new ArrayList<>();
+        Storage.DataPair<Collection> taskPairs = null;
+        Storage.DataPair<Collection> taskRewardsPairs = null;
+        Set<Storage.DataPair<Collection>> requirementPairs = new HashSet<>();
+        Storage.DataPair<Collection> stageStartPairs = null;
+        Storage.DataPair<Collection> stageRewardPairs = null;
 
-        for (Storage.DataPair<String> dataPair : dataPairs)
+        for (Storage.DataPair dataPair : dataPairs)
         {
             String key = dataPair.getKey();
 
-            if (key.contains("stage_config"))
+            if (dataPair.isCollection())
             {
-                stageConfigurationPairs.add(dataPair);
-            } else if (key.contains("task"))
-            {
-                taskPairs.add(dataPair);
-            } else if (key.contains("task_rewards"))
-            {
-                taskRewardsPairs.add(dataPair);
-            } else if (key.contains("requirements"))
-            {
-                requirementPairs.add(dataPair);
-            } else if (key.contains("stage_start_rewards"))
-            {
-                stageStartPairs.add(dataPair);
-            } else if (key.contains("stage_finish_rewards"))
-            {
-                stageRewardPairs.add(dataPair);
+                Storage.DataPair<Collection> collectionPair = new Storage.DataPair<>(key,
+                        (Collection) dataPair.getData());
+
+                switch (key)
+                {
+                    case "tasks":
+                        taskPairs = collectionPair;
+                        break;
+                    case "task_rewards":
+                        taskRewardsPairs = collectionPair;
+                        break;
+                    case "stage_start_rewards":
+                        stageStartPairs = collectionPair;
+                        break;
+                    case "stage_finish_rewards":
+                        stageRewardPairs = collectionPair;
+                        break;
+                    default:
+                        if (key.contains("requirements"))
+                        {
+                            requirementPairs.add(collectionPair);
+                        } else
+                        {
+                            QuestPlugin.getLog().warning(
+                                    "Unknown data field found while loading stage configuration: " + key);
+                        }
+                        break;
+                }
             } else
             {
-                QuestPlugin.getLog().warning("Unknown data field found while loading stage configuration: " + key);
+                Storage.DataPair<String> stringPair = new Storage.DataPair<>(key, (String) dataPair.getData());
+
+                if (key.contains("stage_config"))
+                {
+                    stageConfigurationPairs.add(stringPair);
+                } else
+                {
+                    QuestPlugin.getLog().warning("Unknown data field found while loading stage configuration: " + key);
+                }
             }
         }
 
         Map<StageOption, Object> stageConfiguration = this.loadStageConfig(stageConfigurationPairs);
         Set<Task> tasks = this.loadTasks(taskPairs);
-        List<Reward> taskRewards = this.loadReward(taskRewardsPairs, "task_rewards");
+        List<Reward> taskRewards = this.loadReward(taskRewardsPairs);
         RequirementWrapper requirements = this.loadRequirements(requirementPairs);
-        List<Reward> stageStart = this.loadReward(stageStartPairs, "stage_start_rewards");
-        List<Reward> stageRewards = this.loadReward(stageRewardPairs, "stage_finish_rewards");
+        List<Reward> stageStart = this.loadReward(stageStartPairs);
+        List<Reward> stageRewards = this.loadReward(stageRewardPairs);
 
         // Check if anything failed to load
         if (stageConfiguration == null ||
@@ -257,17 +278,20 @@ public class StageConfigurationImageBuilder implements ImageBuilder<StageConfigu
         return result;
     }
 
-    private Set<Task> loadTasks(List<Storage.DataPair<String>> dataPairs)
+    private Set<Task> loadTasks(Storage.DataPair<Collection> tasks)
     {
         Set<Task> result = new HashSet<>();
 
-        for (Storage.DataPair dataPair : dataPairs)
+        if (tasks == null)
         {
-            String rawUUID = StringUtils.stripIncluding(dataPair.getKey(), "task", true);
+            return result;
+        }
 
-            if (StringUtils.isUUID(rawUUID))
+        for (Object rawID : tasks.getData())
+        {
+            if (StringUtils.isUUID(rawID.toString()))
             {
-                UUID taskUUID = UUID.fromString(rawUUID);
+                UUID taskUUID = UUID.fromString(rawID.toString());
 
                 // Load task
                 Task task = (Task) this.questPlugin.getExtensionImageBuilder().load(taskUUID);
@@ -283,24 +307,27 @@ public class StageConfigurationImageBuilder implements ImageBuilder<StageConfigu
                 result.add(task);
             } else
             {
-                QuestPlugin.getLog().warning("Found illegal task uuid: " + rawUUID);
+                QuestPlugin.getLog().warning("Found illegal task uuid: " + rawID);
             }
         }
 
         return result;
     }
 
-    private List<Reward> loadReward(List<Storage.DataPair<String>> dataPairs, String type)
+    private List<Reward> loadReward(Storage.DataPair<Collection> rewards)
     {
-        List<Reward> result = new ArrayList<>(dataPairs.size());
+        List<Reward> result = new ArrayList<>();
 
-        for (Storage.DataPair dataPair : dataPairs)
+        if (rewards == null)
         {
-            String rawUUID = StringUtils.stripIncluding(dataPair.getKey(), type, true);
+            return result;
+        }
 
-            if (StringUtils.isUUID(rawUUID))
+        for (Object rawID : rewards.getData())
+        {
+            if (StringUtils.isUUID(rawID.toString()))
             {
-                UUID uuid = UUID.fromString(rawUUID);
+                UUID uuid = UUID.fromString(rawID.toString());
 
                 // Load reward
                 Reward reward = (Reward) this.questPlugin.getExtensionImageBuilder().load(uuid);
@@ -316,14 +343,14 @@ public class StageConfigurationImageBuilder implements ImageBuilder<StageConfigu
                 result.add(reward);
             } else
             {
-                QuestPlugin.getLog().warning("Found illegal reward uuid: " + rawUUID);
+                QuestPlugin.getLog().warning("Found illegal reward uuid: " + rawID);
             }
         }
 
         return result;
     }
 
-    private RequirementWrapper loadRequirements(List<Storage.DataPair<String>> dataPairs)
+    private RequirementWrapper loadRequirements(Set<Storage.DataPair<Collection>> dataPairs)
     {
         RequirementWrapper result = RequirementWrapper.load(this.questPlugin, dataPairs);
 

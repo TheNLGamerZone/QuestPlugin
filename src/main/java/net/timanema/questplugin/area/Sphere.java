@@ -17,6 +17,7 @@
 
 package net.timanema.questplugin.area;
 
+import net.timanema.questplugin.utils.LocationWithID;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.bukkit.Location;
 
@@ -26,15 +27,15 @@ import java.util.UUID;
 
 public class Sphere extends Region
 {
-    private Location center;
+    private LocationWithID center;
     private double radius;
 
-    public Sphere(UUID uuid, Location center, double radius)
+    public Sphere(UUID uuid, LocationWithID center, double radius)
     {
         this(uuid, center, radius, false);
     }
 
-    public Sphere(UUID uuid, Location center, double radius, boolean ignoreHeight)
+    public Sphere(UUID uuid, LocationWithID center, double radius, boolean ignoreHeight)
     {
         super(ID_SPHERE, uuid, center.getWorld(), ignoreHeight);
 
@@ -52,7 +53,7 @@ public class Sphere extends Region
         this.radius = radius;
     }
 
-    public void setCenter(Location location)
+    public void setCenter(LocationWithID location)
     {
         this.center = location;
     }
@@ -106,9 +107,9 @@ public class Sphere extends Region
     }
 
     @Override
-    public LinkedHashSet<Location> getLocations()
+    public LinkedHashSet<LocationWithID> getLocations()
     {
-        LinkedHashSet<Location> result = new LinkedHashSet<>();
+        LinkedHashSet<LocationWithID> result = new LinkedHashSet<>();
 
         result.add(this.center);
 

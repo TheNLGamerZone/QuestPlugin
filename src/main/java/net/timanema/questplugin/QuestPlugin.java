@@ -57,6 +57,7 @@ public class QuestPlugin extends JavaPlugin
     @Inject private StageImageBuilder stageImageBuilder;
     @Inject private StageConfigurationImageBuilder stageConfigurationImageBuilder;
     @Inject private ExtensionImageBuilder extensionImageBuilder;
+    @Inject private LocationImageBuilder locationImageBuilder;
 
     @Inject private TaskHandler taskHandler;
     @Inject private QuestHandler questHandler;
@@ -208,5 +209,10 @@ public class QuestPlugin extends JavaPlugin
     public ExtensionImageBuilder getExtensionImageBuilder()
     {
         return this.extensionImageBuilder;
+    }
+
+    public LocationImageBuilder getLocationImageBuilder()
+    {
+        return this.locationImageBuilder;
     }
 }

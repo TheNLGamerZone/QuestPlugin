@@ -64,22 +64,25 @@ public class QuestImageBuilder implements ImageBuilder<Quest>
             list_progress: <boolean>
             replayable: <boolean>
             sequential: <boolean>
+            hidden: <boolean>
             stages:
-                <stage_uuid>: STAGE
-                .
+                - <stage_uuid>
+                - <stage_uuid>
             rewards:
-                <reward_uuid>: REWARD
-                .
+                - <reward_uuid>
+                - <reward_uuid>
             triggers:
-                <trigger_uuid>: TRIGGER
-                .
+                - <trigger_uuid>
+                - <trigger_uuid>
             requirements:
                 <group_id>:
-                    <requirement_uuid>: REQUIREMENT
-                    .
-                 .
+                    - <requirement_uuid>
+                    - <requirement_uuid>
+                <group_id>:
+                    - <requirement_uuid>
+                    - <requirement_uuid>
          */
-        List<Storage.DataPair<String>> result = new ArrayList<>();
+        List<Storage.DataPair> result = new ArrayList<>();
 
         // Add flags
         result.add(new Storage.DataPair<>("area", quest.getQuestArea().getUUID().toString()));
@@ -87,6 +90,7 @@ public class QuestImageBuilder implements ImageBuilder<Quest>
         result.add(new Storage.DataPair<>("list_progress", "false")); //TODO: Implement
         result.add(new Storage.DataPair<>("replayable", quest.isReplayable() + ""));
         result.add(new Storage.DataPair<>("sequential", quest.isSequential() + ""));
+        result.add(new Storage.DataPair<>("hidden", quest.isHidden() + ""));
 
         // Append stages
         this.appendAndSaveStages(result, quest.getStages());
@@ -104,33 +108,44 @@ public class QuestImageBuilder implements ImageBuilder<Quest>
         this.storage.save(quest.getUUID(), Storage.DataType.QUEST, result);
     }
 
-    private void appendAndSaveStages(List<Storage.DataPair<String>> result, Collection<Stage> stages)
+    private void appendAndSaveStages(List<Storage.DataPair> result, Collection<Stage> stages)
     {
+        Set<String> ids = new HashSet<>();
+
         stages.forEach(stage -> {
-            result.add(new Storage.DataPair<>("stages." + stage.getUUID(), "STAGE"));
+            ids.add(stage.getUUID().toString());
             this.questPlugin.getStageImageBuilder().save(stage);
         });
+
+        result.add(new Storage.DataPair<>("stages", ids));
     }
 
-    private void appendAndSaveTriggers(List<Storage.DataPair<String>> result, Collection<Trigger> triggers)
+    private void appendAndSaveTriggers(List<Storage.DataPair> result, Collection<Trigger> triggers)
     {
+        Set<String> ids = new HashSet<>();
+
         triggers.forEach(trigger -> {
-            result.add(new Storage.DataPair<>("triggers." + trigger.getUUID(), "TRIGGER"));
+            ids.add(trigger.getUUID().toString());
             this.questPlugin.getExtensionImageBuilder().save(trigger);
         });
+
+        result.add(new Storage.DataPair<>("triggers", ids));
     }
 
-    private void appendAndSaveRewards(List<Storage.DataPair<String>> result,
+    private void appendAndSaveRewards(List<Storage.DataPair> result,
                                       Collection<Reward> keys)
     {
+        Set<String> ids = new HashSet<>();
+
         keys.forEach(reward -> {
-            result.add(new Storage.DataPair<>(
-                    "rewards." + reward.getUUID(), "REWARD"));
+            ids.add(reward.getUUID().toString());
             this.questPlugin.getExtensionImageBuilder().save(reward);
         });
+
+        result.add(new Storage.DataPair<>("rewards", ids));
     }
 
-    private void appendAndSaveRequirements(List<Storage.DataPair<String>> result,
+    private void appendAndSaveRequirements(List<Storage.DataPair> result,
                                            RequirementWrapper requirements)
     {
         // Append data
@@ -144,7 +159,7 @@ public class QuestImageBuilder implements ImageBuilder<Quest>
     @Override
     public Quest load(UUID uuid)
     {
-        List<Storage.DataPair<String>> dataPairs = this.storage.load(uuid, Storage.DataType.QUEST);
+        List<Storage.DataPair> dataPairs = this.storage.load(uuid, Storage.DataType.QUEST);
 
         // Check if uuid was valid
         if (dataPairs == null)
@@ -153,10 +168,10 @@ public class QuestImageBuilder implements ImageBuilder<Quest>
         }
 
         // Do some work beforehand
-        List<Storage.DataPair<String>> stagePairs = new ArrayList<>();
-        List<Storage.DataPair<String>> rewardPairs = new ArrayList<>();
-        List<Storage.DataPair<String>> triggerPairs = new ArrayList<>();
-        List<Storage.DataPair<String>> requirementPairs = new ArrayList<>();
+        Storage.DataPair<Collection> stagePairs = null;
+        Storage.DataPair<Collection> rewardPairs = null;
+        Storage.DataPair<Collection> triggerPairs = null;
+        Set<Storage.DataPair<Collection>> requirementPairs = new HashSet<>();
 
         Area area = null;
         Boolean areaLocked = null;
@@ -166,47 +181,70 @@ public class QuestImageBuilder implements ImageBuilder<Quest>
         Boolean hidden = null;
 
         // Loop over pairs
-        for (Storage.DataPair<String> dataPair : dataPairs)
+        for (Storage.DataPair dataPair : dataPairs)
         {
             String key = dataPair.getKey();
-            String data = dataPair.getData();
 
-            if (key.contains("stages"))
+            // Check if this is a collection or not
+            if (dataPair.isCollection())
             {
-                stagePairs.add(dataPair);
-            } else if (key.contains("rewards"))
-            {
-                rewardPairs.add(dataPair);
-            } else if (key.contains("triggers"))
-            {
-                triggerPairs.add(dataPair);
-            } else if (key.contains("requirements"))
-            {
-                requirementPairs.add(dataPair);
-            } else if (key.contains("area_locked"))
-            {
-                areaLocked = BooleanUtils.toBooleanObject(data);
-            } else if (key.contains("area"))
-            {
-                if (StringUtils.isUUID(data))
+                Storage.DataPair<Collection> collectionPair = new Storage.DataPair<>(key,
+                        (Collection) dataPair.getData());
+
+
+                switch (key)
                 {
-                    area = this.questPlugin.getAreaImageBuilder().load(UUID.fromString(data));
+                    case "stages":
+                        stagePairs = collectionPair;
+                        break;
+                    case "rewards":
+                        rewardPairs = collectionPair;
+                        break;
+                    case "triggers":
+                        triggerPairs = collectionPair;
+                        break;
+                    default:
+                        if (key.contains("requirements"))
+                        {
+                            requirementPairs.add(collectionPair);
+                        } else
+                        {
+                            QuestPlugin.getLog().warning("Unknown data field found while loading stage configuration: " + key);
+                        }
+                        break;
                 }
-            } else if (key.contains("list_progress"))
-            {
-                listProgress = BooleanUtils.toBooleanObject(data);
-            } else if (key.contains("replayable"))
-            {
-                replayable = BooleanUtils.toBooleanObject(data);
-            } else if (key.contains("sequential"))
-            {
-                sequential = BooleanUtils.toBooleanObject(data);
-            } else if (key.contains("hidden"))
-            {
-                hidden = BooleanUtils.toBooleanObject(data);
             } else
             {
-                QuestPlugin.getLog().warning("Unknown data field found while loading stage configuration: " + key);
+                Storage.DataPair<String> stringPair = new Storage.DataPair<>(key, (String) dataPair.getData());
+                String data = stringPair.getData();
+
+                switch (key)
+                {
+                    case "area":
+                        if (StringUtils.isUUID(data))
+                        {
+                            area = this.questPlugin.getAreaImageBuilder().load(UUID.fromString(data));
+                        }
+                        break;
+                    case "area_locked":
+                        areaLocked = BooleanUtils.toBooleanObject(data);
+                        break;
+                    case "list_progress":
+                        listProgress = BooleanUtils.toBooleanObject(data);
+                        break;
+                    case "replayable":
+                        replayable = BooleanUtils.toBooleanObject(data);
+                        break;
+                    case "sequential":
+                        sequential = BooleanUtils.toBooleanObject(data);
+                        break;
+                    case "hidden":
+                        hidden = BooleanUtils.toBooleanObject(data);
+                        break;
+                    default:
+                        QuestPlugin.getLog().warning("Unknown data field found while loading stage configuration: " + key);
+                        break;
+                }
             }
         }
 
@@ -254,22 +292,25 @@ public class QuestImageBuilder implements ImageBuilder<Quest>
         return quest;
     }
 
-    private LinkedList<Stage> loadStages(Collection<Storage.DataPair<String>> dataPairs)
+    private LinkedList<Stage> loadStages(Storage.DataPair<Collection> dataPairs)
     {
         LinkedList<Stage> stages = new LinkedList<>();
 
-        for (Storage.DataPair<String> dataPair : dataPairs)
+        if (dataPairs == null)
         {
-            String rawUUID = StringUtils.stripIncluding(dataPair.getKey(), "stages", true);
+            return stages;
+        }
 
-            if (StringUtils.isUUID(rawUUID))
+        for (Object rawID : dataPairs.getData())
+        {
+            if (StringUtils.isUUID(rawID))
             {
-                Stage stage = this.questPlugin.getStageImageBuilder().load(UUID.fromString(rawUUID));
+                Stage stage = this.questPlugin.getStageImageBuilder().load(UUID.fromString(rawID.toString()));
 
                 // Check if stage failed to load
                 if (stage == null)
                 {
-                    QuestPlugin.getLog().warning("Could not load stage '" + rawUUID + "'");
+                    QuestPlugin.getLog().warning("Could not load stage '" + rawID + "'");
                     return null;
                 }
 
@@ -280,22 +321,25 @@ public class QuestImageBuilder implements ImageBuilder<Quest>
         return stages;
     }
 
-    private Set<Reward> loadRewards(Collection<Storage.DataPair<String>> dataPairs)
+    private Set<Reward> loadRewards(Storage.DataPair<Collection> dataPairs)
     {
         Set<Reward> rewards = new HashSet<>();
 
-        for (Storage.DataPair<String> dataPair : dataPairs)
+        if (dataPairs == null)
         {
-            String rawUUID = StringUtils.stripIncluding(dataPair.getKey(), "rewards", true);
+            return rewards;
+        }
 
-            if (StringUtils.isUUID(rawUUID))
+        for (Object rawID : dataPairs.getData())
+        {
+            if (StringUtils.isUUID(rawID))
             {
-                Reward reward = (Reward) this.questPlugin.getExtensionImageBuilder().load(UUID.fromString(rawUUID));
+                Reward reward = (Reward) this.questPlugin.getExtensionImageBuilder().load(UUID.fromString(rawID.toString()));
 
                 // Check if reward failed to load
                 if (reward == null)
                 {
-                    QuestPlugin.getLog().warning("Could not load reward '" + rawUUID + "'");
+                    QuestPlugin.getLog().warning("Could not load reward '" + rawID + "'");
                     return null;
                 }
 
@@ -306,22 +350,25 @@ public class QuestImageBuilder implements ImageBuilder<Quest>
         return rewards;
     }
 
-    private Set<Trigger> loadTriggers(Collection<Storage.DataPair<String>> dataPairs)
+    private Set<Trigger> loadTriggers(Storage.DataPair<Collection> dataPairs)
     {
         Set<Trigger> triggers = new HashSet<>();
 
-        for (Storage.DataPair<String> dataPair : dataPairs)
+        if (dataPairs == null)
         {
-            String rawUUID = StringUtils.stripIncluding(dataPair.getKey(), "triggers", true);
+            return triggers;
+        }
 
-            if (StringUtils.isUUID(rawUUID))
+        for (Object rawID : dataPairs.getData())
+        {
+            if (StringUtils.isUUID(rawID))
             {
-                Trigger trigger = (Trigger) this.questPlugin.getExtensionImageBuilder().load(UUID.fromString(rawUUID));
+                Trigger trigger = (Trigger) this.questPlugin.getExtensionImageBuilder().load(UUID.fromString(rawID.toString()));
 
                 // Check if trigger failed to load
                 if (trigger == null)
                 {
-                    QuestPlugin.getLog().warning("Could not load trigger '" + rawUUID + "'");
+                    QuestPlugin.getLog().warning("Could not load trigger '" + rawID + "'");
                     return null;
                 }
 

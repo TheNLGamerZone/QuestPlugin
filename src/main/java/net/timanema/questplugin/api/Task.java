@@ -52,9 +52,9 @@ public abstract class Task extends CustomExtension implements Listener, Owner
     public abstract Integer getRequiredProgressToFinish();
 
     @Override
-    public Set<Storage.DataPair<String>> getData()
+    public Set<Storage.DataPair> getData()
     {
-        Set<Storage.DataPair<String>> data = super.getData();
+        Set<Storage.DataPair> data = super.getData();
 
         // Add type and stage
         data.add(new Storage.DataPair<>("type", ExtensionType.TASK.name()));

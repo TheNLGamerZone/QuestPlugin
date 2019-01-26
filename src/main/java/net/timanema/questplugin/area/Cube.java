@@ -17,6 +17,7 @@
 
 package net.timanema.questplugin.area;
 
+import net.timanema.questplugin.utils.LocationWithID;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.bukkit.Location;
 
@@ -26,15 +27,15 @@ import java.util.UUID;
 
 public class Cube extends Region
 {
-    private Location location1;
-    private Location location2;
+    private LocationWithID location1;
+    private LocationWithID location2;
 
-    public Cube(UUID uuid, Location location1, Location location2)
+    public Cube(UUID uuid, LocationWithID location1, LocationWithID location2)
     {
         this(uuid, location1, location2, false);
     }
 
-    public Cube(UUID uuid, Location location1, Location location2, boolean ignoreHeight)
+    public Cube(UUID uuid, LocationWithID location1, LocationWithID location2, boolean ignoreHeight)
     {
         super(ID_CUBE, uuid, location1.getWorld(), ignoreHeight);
 
@@ -66,12 +67,12 @@ public class Cube extends Region
         return (n - a) * (n - b) <= 0;
     }
 
-    public void setFirstLocation(Location location)
+    public void setFirstLocation(LocationWithID location)
     {
         this.location1 = location;
     }
 
-    public void setSecondLocation(Location location)
+    public void setSecondLocation(LocationWithID location)
     {
         this.location2 = location;
     }
@@ -105,9 +106,9 @@ public class Cube extends Region
     }
 
     @Override
-    public LinkedHashSet<Location> getLocations()
+    public LinkedHashSet<LocationWithID> getLocations()
     {
-        LinkedHashSet<Location> result = new LinkedHashSet<>();
+        LinkedHashSet<LocationWithID> result = new LinkedHashSet<>();
 
         result.add(this.location1);
         result.add(this.location2);

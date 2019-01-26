@@ -42,7 +42,7 @@ public class QuestHandler
     private QuestPlugin questPlugin;
 
     private Set<Quest> quests;
-    private Set<Stage> floatingStages;
+    private Set<Stage> stages;
 
     private Map<String, Class<? extends CustomExtension>> basicTriggers;
 
@@ -51,7 +51,7 @@ public class QuestHandler
     {
         this.questPlugin = questPlugin;
         this.quests = new HashSet<>();
-        this.floatingStages = new HashSet<>();
+        this.stages = new HashSet<>();
         this.basicTriggers = new HashMap<>();
     }
 
@@ -81,7 +81,7 @@ public class QuestHandler
 
     public void initFloatingStages(Set<UUID> stageUUIDs)
     {
-        QuestPlugin.getLog().info("Loading floating floatingStages");
+        QuestPlugin.getLog().info("Loading floating stages");
 
         // Loop over ids
         for (UUID uuid : this.questPlugin.getStorage().searchForObject(Storage.DataType.STAGE, stageUUIDs,
@@ -104,12 +104,21 @@ public class QuestHandler
 
     public void registerQuest(Quest quest)
     {
+        if (quest == null)
+        {
+            return;
+        }
+
+        // Register stages
+        this.stages.addAll(quest.getStages());
+
+        // Register quest
         this.quests.add(quest);
     }
 
     public void registerStage(Stage stage)
     {
-        this.floatingStages.add(stage);
+        this.stages.add(stage);
     }
 
     protected boolean registerQuestTrigger(Class<? extends CustomExtension> triggerClazz, String identifier)
@@ -162,7 +171,7 @@ public class QuestHandler
 
     public Stage getStage(UUID uuid)
     {
-        for (Stage stage : this.floatingStages)
+        for (Stage stage : this.stages)
         {
             if (stage.getUUID().equals(uuid))
             {
@@ -289,19 +298,16 @@ public class QuestHandler
                 // Check if this is a branching task
                 if (stage.getConfiguration().getRewardForTask(task)
                         .stream()
-                        .anyMatch(reward -> reward instanceof StageLinkReward))
+                        .anyMatch(reward -> reward instanceof StageLinkReward) && completed)
                 {
-                    if (completed)
+                    // Check if another branching task was completed, should not be the case
+                    if (branchCompleted)
                     {
-                        // Check if another branching task was completed, should not be the case
-                        if (branchCompleted)
-                        {
-                            QuestPlugin.getLog().severe("An error occurred while checking for stage completion: " +
-                                    "Stage '" + stage.getUUID() + "' has two or more completed branching tasks for player '" + player.getUUID() + "'!");
-                        }
-
-                        branchCompleted = true;
+                        QuestPlugin.getLog().severe("An error occurred while checking for stage completion: " +
+                                "Stage '" + stage.getUUID() + "' has two or more completed branching tasks for player '" + player.getUUID() + "'!");
                     }
+
+                    branchCompleted = true;
                 }
             }
 
@@ -377,7 +383,7 @@ public class QuestHandler
                     .map(UUID.class::cast)
                     .collect(Collectors.toList());
 
-            // Was a branch to we have to do some cleaning up of other floatingStages
+            // Was a branch to we have to do some cleaning up of other stages
             player.cleanQuestProgressAfterBranch(parent, newBranches);
         }
 

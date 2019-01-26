@@ -18,6 +18,7 @@
 package net.timanema.tests.region;
 
 import net.timanema.questplugin.area.Sphere;
+import net.timanema.questplugin.utils.LocationWithID;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.junit.Before;
@@ -37,11 +38,11 @@ public class SphereTest
     private Object testObject;
     private Sphere regularSphere;
     private Sphere testSphere;
-    private Location locationInSphere;
-    private Location locationNotInSphere;
-    private Location locationInSphereIgnoreHeight;
-    private Location locationNotInSphereIgnoreHeight;
-    private Location locationInOtherWorld;
+    private LocationWithID locationInSphere;
+    private LocationWithID locationNotInSphere;
+    private LocationWithID locationInSphereIgnoreHeight;
+    private LocationWithID locationNotInSphereIgnoreHeight;
+    private LocationWithID locationInOtherWorld;
 
     @Before
     public void setup()
@@ -57,14 +58,14 @@ public class SphereTest
         testObject = new Object();
 
         // Creating locations
-        Location center = new Location(world1, 15, 15, 15);
+        LocationWithID center = new LocationWithID(UUID.randomUUID(), world1, 15, 15, 15);
         double radius = 5.5;
 
-        locationInSphere = new Location(world1, 15, 15, 15 + 4);
-        locationNotInSphere = new Location(world1, 15, 15, 15 + 7);
-        locationInSphereIgnoreHeight = new Location(world1, 15 - 1, 15 + 2, 15 - 10);
-        locationNotInSphereIgnoreHeight = new Location(world1, 15 - 10, 15 - 2, 15 - 20);
-        locationInOtherWorld = new Location(world2, 15, 15 , 15);
+        locationInSphere = new LocationWithID(UUID.randomUUID(), world1, 15, 15, 15 + 4);
+        locationNotInSphere = new LocationWithID(UUID.randomUUID(), world1, 15, 15, 15 + 7);
+        locationInSphereIgnoreHeight = new LocationWithID(UUID.randomUUID(), world1, 15 - 1, 15 + 2, 15 - 10);
+        locationNotInSphereIgnoreHeight = new LocationWithID(UUID.randomUUID(), world1, 15 - 10, 15 - 2, 15 - 20);
+        locationInOtherWorld = new LocationWithID(UUID.randomUUID(), world2, 15, 15 , 15);
 
         // Creating objects
         UUID uuid = UUID.randomUUID();
@@ -93,7 +94,7 @@ public class SphereTest
     @Test
     public void sphere_equals_test_not_equal()
     {
-        assertFalse("These objects are not equal", regularSphere.equals(new Sphere(UUID.randomUUID(), new Location(null, 0 ,0 ,0), 1)));
+        assertFalse("These objects are not equal", regularSphere.equals(new Sphere(UUID.randomUUID(), new LocationWithID(UUID.randomUUID(), null, 0 ,0 ,0), 1)));
     }
 
     @Test
@@ -106,7 +107,7 @@ public class SphereTest
     public void sphere_hashcode_not_equal()
     {
         assertFalse("These objects are not equal (hashcode)",
-                regularSphere.hashCode() == new Sphere(UUID.randomUUID(), new Location(null, 0, 0, 0), 42).hashCode());
+                regularSphere.hashCode() == new Sphere(UUID.randomUUID(), new LocationWithID(UUID.randomUUID(), null, 0, 0, 0), 42).hashCode());
     }
 
     @Test

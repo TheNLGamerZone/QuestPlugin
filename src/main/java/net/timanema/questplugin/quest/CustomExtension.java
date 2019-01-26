@@ -122,9 +122,9 @@ public abstract class CustomExtension extends Configurable implements Saveable
     }
 
     @Override
-    public Set<Storage.DataPair<String>> getData()
+    public Set<Storage.DataPair> getData()
     {
-        Set<Storage.DataPair<String>> data = super.getData();
+        Set<Storage.DataPair> data = super.getData();
 
         // Add id
         data.add(new Storage.DataPair<>("id", this.getIdentifier()));
